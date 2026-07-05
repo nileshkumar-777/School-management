@@ -12,8 +12,13 @@ class ProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     final user = authState.value;
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
     final displayName = user?.displayName ?? "Nilesh Kumar";
     final avatarUrl = user?.photoURL ?? 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(displayName)}&background=random';
+
+    final textPrimaryColor = isDark ? Colors.white : const Color(0xFF0F2C59);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -27,7 +32,7 @@ class ProfileView extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   radius: 54,
-                  backgroundColor: const Color(0xFF0F2C59),
+                  backgroundColor: textPrimaryColor,
                   child: CircleAvatar(
                     radius: 50,
                     backgroundImage: NetworkImage(avatarUrl),
@@ -38,8 +43,8 @@ class ProfileView extends ConsumerWidget {
                   right: 4,
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0F2C59),
+                    decoration: BoxDecoration(
+                      color: textPrimaryColor,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -55,10 +60,10 @@ class ProfileView extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(
             displayName,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F2C59),
+              color: textPrimaryColor,
             ),
           ),
           const SizedBox(height: 4),
@@ -72,11 +77,11 @@ class ProfileView extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: _buildInfoCard("Roll Number", "UR-2024-CSE012"),
+                child: _buildInfoCard(context, "Roll Number", "UR-2024-CSE012", textPrimaryColor),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _buildInfoCard("Semester", "Semester 3"),
+                child: _buildInfoCard(context, "Semester", "Semester 3", textPrimaryColor),
               ),
             ],
           ),
@@ -98,29 +103,39 @@ class ProfileView extends ConsumerWidget {
 
           // Settings list
           _buildSettingsTile(
+            context,
             icon: Icons.security_outlined,
             title: "Security & Credentials",
             subtitle: "Manage passwords and 2FA",
+            textPrimaryColor: textPrimaryColor,
           ),
           _buildSettingsTile(
+            context,
             icon: Icons.notifications_none_rounded,
             title: "Notification Settings",
             subtitle: "Manage notice and query alerts",
+            textPrimaryColor: textPrimaryColor,
           ),
           _buildSettingsTile(
+            context,
             icon: Icons.dark_mode_outlined,
             title: "Theme Mode",
             subtitle: "Switch to dark theme",
+            textPrimaryColor: textPrimaryColor,
             trailing: Switch(
-              value: false,
-              onChanged: (bool val) {},
+              value: isDark,
+              onChanged: (bool val) {
+                ref.read(themeModeProvider.notifier).toggleTheme();
+              },
               activeThumbColor: const Color(0xFF0F2C59),
             ),
           ),
           _buildSettingsTile(
+            context,
             icon: Icons.help_outline_rounded,
             title: "Help & Feedback",
             subtitle: "Contact support or view FAQ",
+            textPrimaryColor: textPrimaryColor,
           ),
 
           const SizedBox(height: 24),
@@ -167,11 +182,12 @@ class ProfileView extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoCard(String label, String value) {
+  Widget _buildInfoCard(BuildContext context, String label, String value, Color textPrimaryColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF2F9),
+        color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEEF2F9),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -184,10 +200,10 @@ class ProfileView extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F2C59),
+              color: textPrimaryColor,
             ),
           ),
         ],
@@ -195,16 +211,18 @@ class ProfileView extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsTile({
+  Widget _buildSettingsTile(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
+    required Color textPrimaryColor,
     Widget? trailing,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -215,7 +233,7 @@ class ProfileView extends ConsumerWidget {
         ],
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF0F2C59)),
+        leading: Icon(icon, color: textPrimaryColor),
         title: Text(
           title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),

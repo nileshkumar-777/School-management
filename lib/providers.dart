@@ -1055,3 +1055,38 @@ class MasterScheduleNotifier extends Notifier<List<ScheduleSlotModel>> {
 final masterScheduleProvider = NotifierProvider<MasterScheduleNotifier, List<ScheduleSlotModel>>(
   MasterScheduleNotifier.new,
 );
+
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  File get _file => File('${Directory.systemTemp.path}/theme_mode.json');
+
+  @override
+  ThemeMode build() {
+    try {
+      if (_file.existsSync()) {
+        final content = _file.readAsStringSync();
+        final json = jsonDecode(content);
+        return json['themeMode'] == 'dark' ? ThemeMode.dark : ThemeMode.light;
+      }
+    } catch (e) {
+      debugPrint("Error loading theme mode: $e");
+    }
+    return ThemeMode.light;
+  }
+
+  void toggleTheme() {
+    state = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _save();
+  }
+
+  void _save() {
+    try {
+      _file.writeAsStringSync(jsonEncode({'themeMode': state == ThemeMode.dark ? 'dark' : 'light'}));
+    } catch (e) {
+      debugPrint("Error saving theme mode: $e");
+    }
+  }
+}
+
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);

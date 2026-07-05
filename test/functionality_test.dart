@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/student/ai_view.dart';
@@ -94,6 +95,19 @@ void main() {
       expect(daysWithClasses.contains('Monday'), isTrue);
       expect(daysWithClasses.contains('Wednesday'), isTrue);
       expect(daysWithClasses.contains('Friday'), isTrue);
+    });
+  });
+
+  group('Theme Mode Notifier Tests', () {
+    test('Verify initial state and toggle capability', () {
+      final container = ProviderContainer();
+      expect(container.read(themeModeProvider), equals(ThemeMode.light));
+
+      container.read(themeModeProvider.notifier).toggleTheme();
+      expect(container.read(themeModeProvider), equals(ThemeMode.dark));
+
+      container.read(themeModeProvider.notifier).toggleTheme();
+      expect(container.read(themeModeProvider), equals(ThemeMode.light));
     });
   });
 }
