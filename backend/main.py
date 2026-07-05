@@ -14,7 +14,8 @@ from schemas import (
     StudentResponse,
     ClassCreate,
     ClassResponse,
-    AddStudentsRequest
+    AddStudentsRequest,
+    LoginResponse
 )
 from passlib.context import CryptContext
 
@@ -118,8 +119,25 @@ def register(name: str, email: str, role: str, db: Session = Depends(get_db)):
     # Legacy fallback register helper
     return {"message": f"Register via specific /register/teacher or /register/student endpoints instead."}
 
-# Unified login endpoint with strict role verification
-@app.post("/login")
+# JWT configurations
+from jose import jwt, JWTError
+
+SECRET_KEY = "super_secret_signing_key_for_eduflow_app"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
+
+def create_access_token(data: dict, expires_delta: Optional[datetime.timedelta] = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+# Unified login endpoint with strict role verification and JWT generation
+@app.post("/login", response_model=LoginResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     if data.role == "Teacher":
         teacher = db.query(Teacher).filter(Teacher.email == data.email).first()
@@ -139,9 +157,15 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         # Update last login time
         teacher.last_login = datetime.datetime.utcnow()
         db.commit()
+
+        # Generate JWT access token
+        token_data = {"sub": teacher.email, "role": "Teacher", "user_id": teacher.id}
+        access_token = create_access_token(data=token_data)
         
         return {
             "message": "Login successful",
+            "access_token": access_token,
+            "token_type": "bearer",
             "role": "Teacher",
             "user": {
                 "id": teacher.id,
@@ -169,8 +193,14 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         if not credentials or not pwd_context.verify(data.password, credentials.password):
             raise HTTPException(status_code=401, detail="Invalid password")
 
+        # Generate JWT access token
+        token_data = {"sub": student.email, "role": "Student", "user_id": student.id}
+        access_token = create_access_token(data=token_data)
+
         return {
             "message": "Login successful",
+            "access_token": access_token,
+            "token_type": "bearer",
             "role": "Student",
             "user": {
                 "id": student.id,

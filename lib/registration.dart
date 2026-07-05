@@ -2,18 +2,20 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/eduflow.dart';
+import 'package:project/providers.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   final String role;
 
   const RegisterScreen({super.key, required this.role});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -55,6 +57,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Save the user's full name and role to their Firebase Auth profile
       await userCredential.user?.updateDisplayName("${nameController.text.trim()}|${widget.role}");
+
+      if (widget.role == "Student") {
+        ref.read(registeredStudentsProvider.notifier).registerStudent(
+          StudentRegistryModel(
+            name: nameController.text.trim(),
+            email: emailController.text.trim(),
+          ),
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

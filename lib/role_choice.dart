@@ -58,7 +58,7 @@ class RoleChoiceScreen extends StatelessWidget {
                     },
                     child: _SwingAnimation(
                       child: Image.asset(
-                        "assets/student.png",
+                        "assets/student1.png",
                         height: 300,
                         width: 190,
                       ),

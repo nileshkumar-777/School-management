@@ -6,10 +6,10 @@ import 'package:project/role_choice.dart';
 import 'package:project/providers.dart';
 import 'package:project/teacher/quick_actions/homework_view.dart';
 import 'package:project/teacher/quick_actions/notice_view.dart';
-import 'package:project/teacher/quick_actions/notes_view.dart';
 import 'package:project/teacher/quick_actions/schedule_view.dart';
 import 'package:project/teacher/quick_actions/queries_view.dart';
 import 'package:project/teacher/quick_actions/attendance_view.dart';
+import 'package:project/teacher/quick_actions/academics_view.dart';
 
 
 class TeacherHomeView extends ConsumerWidget {
@@ -20,6 +20,16 @@ class TeacherHomeView extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     final user = authState.value;
 
+    final classes = ref.watch(classesProvider);
+    final posts = ref.watch(postsProvider);
+    final queries = ref.watch(queriesProvider);
+    final registeredStudents = ref.watch(registeredStudentsProvider);
+
+    final totalClasses = classes.length;
+    final totalStudents = registeredStudents.length;
+    final totalQueries = queries.where((q) => q.status == "Pending").length;
+    final totalNotices = posts.where((p) => p.type == "Notice" || p.type == "Alert").length;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -29,19 +39,26 @@ class TeacherHomeView extends ConsumerWidget {
           const SizedBox(height: 24),
           _buildSectionTitle("TODAY'S SUMMARY"),
           const SizedBox(height: 12),
-          _buildSummaryGrid(),
+          _buildSummaryGrid(
+            context,
+            ref,
+            students: totalStudents,
+            classes: totalClasses,
+            queries: totalQueries,
+            notices: totalNotices,
+          ),
           const SizedBox(height: 24),
           _buildSectionTitle("QUICK ACTIONS"),
           const SizedBox(height: 12),
-          _buildQuickActions(context),
+          _buildQuickActions(context, ref),
           const SizedBox(height: 24),
           _buildMyClassesHeader(),
           const SizedBox(height: 12),
-          _buildMyClassesList(),
+          _buildMyClassesList(classes),
           const SizedBox(height: 24),
           _buildSectionTitle("RECENT ACTIVITY"),
           const SizedBox(height: 12),
-          _buildRecentActivityList(),
+          _buildRecentActivityList(posts, queries),
           const SizedBox(height: 40), // Bottom padding for scroll clearance
         ],
       ),
@@ -141,7 +158,14 @@ class TeacherHomeView extends ConsumerWidget {
   }
 
   // --- Summary Grid Section ---
-  Widget _buildSummaryGrid() {
+  Widget _buildSummaryGrid(
+    BuildContext context,
+    WidgetRef ref, {
+    required int students,
+    required int classes,
+    required int queries,
+    required int notices,
+  }) {
     return Column(
       children: [
         Row(
@@ -150,8 +174,9 @@ class TeacherHomeView extends ConsumerWidget {
               child: _buildSummaryCard(
                 color: const Color(0xFFD3E3FD),
                 icon: Icons.people_alt_outlined,
-                value: "0",
+                value: "$students",
                 label: "Students",
+                onTap: () => _showRegisteredStudentsDialog(context, ref),
               ),
             ),
             const SizedBox(width: 16),
@@ -159,8 +184,11 @@ class TeacherHomeView extends ConsumerWidget {
               child: _buildSummaryCard(
                 color: const Color(0xFFE2EDFF),
                 icon: Icons.school_outlined,
-                value: "0",
+                value: "$classes",
                 label: "Classes",
+                onTap: () {
+                  ref.read(navigationProvider.notifier).setIndex(1);
+                },
               ),
             ),
           ],
@@ -172,8 +200,13 @@ class TeacherHomeView extends ConsumerWidget {
               child: _buildSummaryCard(
                 color: const Color(0xFFFCE9A4),
                 icon: Icons.chat_bubble_outline,
-                value: "0",
+                value: "$queries",
                 label: "Queries",
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const QueriesView()),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 16),
@@ -181,10 +214,15 @@ class TeacherHomeView extends ConsumerWidget {
               child: _buildSummaryCard(
                 color: const Color(0xFFFFD9D9),
                 icon: Icons.notifications_active_outlined,
-                value: "0",
-                label: "Notices",
+                value: "$notices",
+                label: "Notices & Alerts",
                 iconColor: Colors.red,
                 valueColor: Colors.red,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const NoticeView()),
+                  );
+                },
               ),
             ),
           ],
@@ -200,48 +238,165 @@ class TeacherHomeView extends ConsumerWidget {
     required String label,
     Color iconColor = const Color(0xFF0F2C59),
     Color valueColor = const Color(0xFF0F2C59),
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: valueColor,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: iconColor),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  void _showRegisteredStudentsDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text(
+            "Registered Students",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2C59)),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Consumer(
+              builder: (context, ref, child) {
+                final registeredStudents = ref.watch(registeredStudentsProvider);
+
+                if (registeredStudents.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      "No registered students found.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: registeredStudents.length,
+                  itemBuilder: (context, index) {
+                    final student = registeredStudents[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: const Color(0xFFD3E3FD),
+                        child: Text(
+                          student.name.split(' ').map((e) => e[0]).take(2).join().toUpperCase(),
+                          style: const TextStyle(
+                            color: Color(0xFF0F2C59),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        student.name,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        student.email,
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () {
+                          _showDeleteConfirmationDialog(context, ref, student);
+                        },
+                      ),
+                      dense: true,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, WidgetRef ref, StudentRegistryModel student) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete Student"),
+          content: Text("Are you sure you want to permanently delete '${student.name}'? This will also remove them from all class rosters."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Delete from registry
+                ref.read(registeredStudentsProvider.notifier).deleteStudent(student.email);
+                // Remove from all classes
+                ref.read(classesProvider.notifier).removeStudentFromAllClasses(student.name);
+                
+                Navigator.pop(context); // Close confirmation dialog
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("'${student.name}' has been deleted from the registry and all classes."),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // --- Quick Actions Section ---
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, WidgetRef ref) {
     final actions = [
       {"icon": Icons.assignment_outlined, "label": "Homework"},
       {"icon": Icons.campaign_outlined, "label": "Notice"},
       {"icon": Icons.calendar_month_outlined, "label": "Attendance"},
-      {"icon": Icons.note_alt_outlined, "label": "Notes"},
+      {"icon": Icons.notification_important_outlined, "label": "Alerts"},
       {"icon": Icons.access_time, "label": "Schedule"},
       {"icon": Icons.question_answer_outlined, "label": "Queries"},
+      {"icon": Icons.analytics_outlined, "label": "Academics"},
     ];
 
     return GridView.count(
@@ -262,12 +417,14 @@ class TeacherHomeView extends ConsumerWidget {
               destination = const NoticeView();
             } else if (label == "Attendance") {
               destination = const AttendanceView();
-            } else if (label == "Notes") {
-              destination = const NotesView();
+            } else if (label == "Alerts") {
+              ref.read(navigationProvider.notifier).setIndex(3);
             } else if (label == "Schedule") {
               destination = const ScheduleView();
             } else if (label == "Queries") {
               destination = const QueriesView();
+            } else if (label == "Academics") {
+              destination = const TeacherAcademicsView();
             }
             
             if (destination != null) {
@@ -324,9 +481,7 @@ class TeacherHomeView extends ConsumerWidget {
     );
   }
 
-  Widget _buildMyClassesList() {
-    final classes = [];
-
+  Widget _buildMyClassesList(List<ClassModel> classes) {
     if (classes.isEmpty) {
       return Container(
         width: double.infinity,
@@ -350,7 +505,7 @@ class TeacherHomeView extends ConsumerWidget {
             ),
             SizedBox(height: 4),
             Text(
-              "Tap the 'Create' tab in the bottom navigation bar to set up your first class.",
+              "Tap the 'Classes' tab or 'Create' tab to set up your first class.",
               style: TextStyle(fontSize: 12, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -379,17 +534,17 @@ class TeacherHomeView extends ConsumerWidget {
             leading: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: c["color"] as Color,
+                color: c.color,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.book_outlined, color: Color(0xFF0F2C59)),
+              child: Icon(Icons.book_outlined, color: c.textColor),
             ),
             title: Text(
-              c["id"] as String,
+              c.id,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             subtitle: Text(
-              c["name"] as String,
+              c.name,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
@@ -400,25 +555,77 @@ class TeacherHomeView extends ConsumerWidget {
   }
 
   // --- Recent Activity Section ---
-  Widget _buildRecentActivityList() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEEF2F9),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.info_outline, size: 16, color: Colors.grey),
-          SizedBox(width: 8),
-          Text(
-            "No recent activity logged.",
-            style: TextStyle(fontSize: 12.5, color: Colors.grey, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
+  Widget _buildRecentActivityList(List<PostModel> posts, List<QueryModel> queries) {
+    final List<Map<String, dynamic>> activities = [];
+
+    for (final p in posts) {
+      activities.add({
+        "type": "post",
+        "title": "Published ${p.type}: ${p.title}",
+        "target": p.targetClass,
+        "time": "Just now",
+        "color": p.type == "Notice" ? Colors.red : (p.type == "Homework" ? Colors.blue : Colors.green),
+      });
+    }
+
+    for (final q in queries) {
+      if (q.status == "Answered") {
+        activities.add({
+          "type": "query",
+          "title": "Answered Query from ${q.student}",
+          "target": q.topic,
+          "time": "Just now",
+          "color": Colors.green,
+        });
+      } else {
+        activities.add({
+          "type": "query",
+          "title": "New Query from ${q.student}",
+          "target": q.topic,
+          "time": "Just now",
+          "color": Colors.orange,
+        });
+      }
+    }
+
+    if (activities.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEEF2F9),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.info_outline, size: 16, color: Colors.grey),
+            SizedBox(width: 8),
+            Text(
+              "No recent activity logged.",
+              style: TextStyle(fontSize: 12.5, color: Colors.grey, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Limit to 3 activities
+    final recentActivities = activities.take(3).toList();
+
+    return Column(
+      children: recentActivities.asMap().entries.map((entry) {
+        final idx = entry.key;
+        final act = entry.value;
+        return _buildActivityItem(
+          color: act["color"] as Color,
+          title: act["title"] as String,
+          target: act["target"] as String,
+          time: act["time"] as String,
+          isFirst: idx == 0,
+          isLast: idx == recentActivities.length - 1,
+        );
+      }).toList(),
     );
   }
 

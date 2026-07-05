@@ -1,52 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/providers.dart';
 
-class NotesView extends StatelessWidget {
+class NotesView extends ConsumerWidget {
   const NotesView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final notes = [
-      {
-        "title": "Unit 3: Normalization & Functional Dependencies",
-        "fileName": "DBMS_Unit_3_Normalization.pdf",
-        "fileSize": "4.2 MB",
-        "fileType": "PDF",
-        "subject": "Database Management Systems",
-        "uploader": "Dr. Sharma",
-        "date": "June 18, 2026",
-        "color": const Color(0xFFD3E3FD),
-      },
-      {
-        "title": "Module 4: Binary Trees & BST Operations",
-        "fileName": "DSA_Trees_LectureNotes.pdf",
-        "fileSize": "5.8 MB",
-        "fileType": "PDF",
-        "subject": "Data Structures & Algorithms",
-        "uploader": "Dr. Sharma",
-        "date": "June 20, 2026",
-        "color": const Color(0xFFE2EDFF),
-      },
-      {
-        "title": "CPU Scheduling Algorithms - Visual Slides",
-        "fileName": "OS_Scheduling_Slides.pptx",
-        "fileSize": "12.4 MB",
-        "fileType": "PPTX",
-        "subject": "Operating Systems",
-        "uploader": "Dr. Sharma",
-        "date": "June 22, 2026",
-        "color": const Color(0xFFFCE9A4),
-      },
-      {
-        "title": "Logic Gates & Multiplexers Laboratory Guide",
-        "fileName": "Digital_Lab_Manual_1.pdf",
-        "fileSize": "2.1 MB",
-        "fileType": "PDF",
-        "subject": "Digital Electronics",
-        "uploader": "Dr. Sharma",
-        "date": "June 15, 2026",
-        "color": const Color(0xFFE8F5E9),
-      },
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(postsProvider);
+    // Student class is default "CSE 1A". Filter notes targeted to CSE 1A or All.
+    final notes = posts.where((p) => p.type == "Notes" && (p.targetClass == "CSE 1A" || p.targetClass == "All")).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFEEF2F9),
@@ -66,137 +29,161 @@ class NotesView extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20.0),
-        itemCount: notes.length,
-        itemBuilder: (context, index) {
-          final note = notes[index];
-          final isPdf = note["fileType"] == "PDF";
-
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+      body: notes.isEmpty
+          ? Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: (note["color"] as Color).withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          isPdf ? Icons.picture_as_pdf : Icons.slideshow,
-                          color: const Color(0xFF0F2C59),
-                          size: 24,
-                        ),
+                  Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No study materials",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F2C59),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Lecture notes or handouts uploaded by your teachers will show up here.",
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(20.0),
+              itemCount: notes.length,
+              itemBuilder: (context, index) {
+                final note = notes[index];
+                final String fileName = "${note.title.replaceAll(' ', '_')}.pdf";
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Text(
-                              note["title"] as String,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F2C59),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: note.color.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                              child: const Icon(
+                                Icons.picture_as_pdf,
+                                color: Color(0xFF0F2C59),
+                                size: 24,
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "${note["subject"]} • ${note["uploader"]}",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    note.title,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF0F2C59),
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    note.description,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEF2F9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.insert_drive_file_outlined, size: 16, color: Colors.black54),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            note["fileName"] as String,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEEF2F9),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.insert_drive_file_outlined, size: 16, color: Colors.black54),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  fileName,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "2.5 MB",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          note["fileSize"] as String,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month_outlined, size: 14, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text(
+                              "Shared: ${note.date.day}/${note.date.month}/${note.date.year}",
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.download, size: 20, color: Color(0xFF0F2C59)),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Downloading $fileName...'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_month_outlined, size: 14, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Shared: ${note["date"]}",
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.download, size: 20, color: Color(0xFF0F2C59)),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Downloading ${note["fileName"]}...'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

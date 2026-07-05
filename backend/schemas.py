@@ -113,3 +113,15 @@ class ClassResponse(BaseModel):
 
 class AddStudentsRequest(BaseModel):
     student_ids: List[int]
+
+# JWT Token details
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class LoginResponse(BaseModel):
+    message: str
+    access_token: str
+    token_type: str
+    role: str
+    user: dict

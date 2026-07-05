@@ -1,65 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/providers.dart';
 
-class AlertsView extends StatefulWidget {
+class AlertsView extends ConsumerStatefulWidget {
   const AlertsView({super.key});
 
   @override
-  State<AlertsView> createState() => _AlertsViewState();
+  ConsumerState<AlertsView> createState() => _AlertsViewState();
 }
 
-class _AlertsViewState extends State<AlertsView> {
+class _AlertsViewState extends ConsumerState<AlertsView> {
   String selectedFilter = 'All';
-
-  final List<Map<String, dynamic>> alerts = [
-    {
-      "title": "12 New Homework Submissions",
-      "description": "DBMS Assignment 3",
-      "time": "10 min ago",
-      "type": "Urgent",
-      "icon": Icons.assignment_outlined,
-      "color": const Color(0xFFFFD9D9),
-      "iconColor": Colors.red,
-    },
-    {
-      "title": "5 New Student Queries",
-      "description": "Need your response",
-      "time": "30 min ago",
-      "type": "Queries",
-      "icon": Icons.chat_bubble_outline,
-      "color": const Color(0xFFFFE0B2),
-      "iconColor": Colors.orange,
-    },
-    {
-      "title": "Attendance Not Marked",
-      "description": "CSE 1A - DBMS",
-      "time": "Today",
-      "type": "Urgent",
-      "icon": Icons.calendar_month_outlined,
-      "color": const Color(0xFFE2EDFF),
-      "iconColor": Colors.blue,
-    },
-    {
-      "title": "New Class Assigned",
-      "description": "CSE 2B added to your classes",
-      "time": "Today",
-      "type": "System",
-      "icon": Icons.school_outlined,
-      "color": const Color(0xFFE8F5E9),
-      "iconColor": Colors.green,
-    },
-    {
-      "title": "Timetable Updated",
-      "description": "Room changed from 301 → 205",
-      "time": "Yesterday",
-      "type": "System",
-      "icon": Icons.access_time_filled_outlined,
-      "color": const Color(0xFFF3E5F5),
-      "iconColor": Colors.purple,
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final posts = ref.watch(postsProvider);
+    final queries = ref.watch(queriesProvider);
+
+    final List<Map<String, dynamic>> alerts = [];
+
+    // Add query alerts
+    for (final q in queries) {
+      if (q.status == "Pending") {
+        alerts.add({
+          "title": "New Query from ${q.student}",
+          "description": "Topic: ${q.topic}\n\nQuery: ${q.queryText}",
+          "time": "Just now",
+          "type": "Queries",
+          "icon": Icons.chat_bubble_outline,
+          "color": const Color(0xFFFFE0B2),
+          "iconColor": Colors.orange,
+        });
+      }
+    }
+
+    // Add post alerts
+    for (final p in posts) {
+      if (p.type == "Homework") {
+        alerts.add({
+          "title": "Homework Published",
+          "description": "Title: ${p.title}\nTarget Class: ${p.targetClass}\nDetails: ${p.description}",
+          "time": "Just now",
+          "type": "Urgent",
+          "icon": Icons.assignment_outlined,
+          "color": const Color(0xFFFFD9D9),
+          "iconColor": Colors.red,
+        });
+      } else if (p.type == "Notice") {
+        alerts.add({
+          "title": "Notice Published",
+          "description": "Title: ${p.title}\nTarget Class: ${p.targetClass}\nDetails: ${p.description}",
+          "time": "Just now",
+          "type": "System",
+          "icon": Icons.campaign_outlined,
+          "color": const Color(0xFFE2EDFF),
+          "iconColor": Colors.blue,
+        });
+      } else if (p.type == "Alert") {
+        alerts.add({
+          "title": "Alert Published",
+          "description": "Title: ${p.title}\nTarget Class: ${p.targetClass}\nDetails: ${p.description}",
+          "time": "Just now",
+          "type": "Urgent",
+          "icon": Icons.warning_amber_rounded,
+          "color": const Color(0xFFFFE0B2),
+          "iconColor": Colors.orange,
+        });
+      }
+    }
+
     final filteredAlerts = selectedFilter == 'All'
         ? alerts
         : alerts.where((alert) => alert['type'] == selectedFilter).toList();
@@ -125,7 +134,7 @@ class _AlertsViewState extends State<AlertsView> {
             child: filteredAlerts.isEmpty
                 ? const Center(
                     child: Text(
-                      "No notices found under this filter.",
+                      "No notices or alerts found.",
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   )
