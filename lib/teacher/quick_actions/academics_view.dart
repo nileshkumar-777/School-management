@@ -15,27 +15,27 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
     final academics = ref.watch(academicsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Academic Performance",
-          style: TextStyle(color: Color(0xFF0F2C59), fontWeight: FontWeight.bold),
+          style: TextStyle(color: ThemeColors.primary(context), fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF0F2C59)),
+        iconTheme: IconThemeData(color: ThemeColors.primary(context)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Student Progress Records",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F2C59),
+                color: ThemeColors.primary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -53,12 +53,12 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
                         children: [
                           Icon(Icons.analytics_outlined, size: 64, color: Colors.grey.shade400),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             "No academic records yet",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F2C59),
+                              color: ThemeColors.primary(context),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -77,7 +77,7 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
                           margin: const EdgeInsets.only(bottom: 16),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: ThemeColors.cardBg(context),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -96,15 +96,15 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFEEF2F9),
+                                      color: ThemeColors.accentBg(context),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
                                       record.examName,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 11,
-                                        color: Color(0xFF0F2C59),
+                                        color: ThemeColors.primary(context),
                                       ),
                                     ),
                                   ),
@@ -128,10 +128,10 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
                               const SizedBox(height: 12),
                               Text(
                                 record.studentName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
-                                  color: Color(0xFF0F2C59),
+                                  color: ThemeColors.primary(context),
                                 ),
                               ),
                               Text(
@@ -148,7 +148,11 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
                                   ),
                                   Text(
                                     "Score: ${record.marksObtained.toStringAsFixed(0)} / ${record.maxMarks.toStringAsFixed(0)}",
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: ThemeColors.textSecondary(context),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -158,7 +162,11 @@ class _TeacherAcademicsViewState extends ConsumerState<TeacherAcademicsView> {
                                 const SizedBox(height: 8),
                                 Text(
                                   "Remarks: ${record.remarks}",
-                                  style: const TextStyle(fontSize: 12.5, color: Colors.black87, fontStyle: FontStyle.italic),
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    color: ThemeColors.textSecondary(context),
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
                               ],
                             ],
@@ -265,10 +273,11 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
     final students = ref.watch(registeredStudentsProvider);
 
     return AlertDialog(
+      backgroundColor: ThemeColors.cardBg(context),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
+      title: Text(
         "Add Academic Record",
-        style: TextStyle(color: Color(0xFF0F2C59), fontWeight: FontWeight.bold),
+        style: TextStyle(color: ThemeColors.primary(context), fontWeight: FontWeight.bold),
       ),
       content: SingleChildScrollView(
         child: Form(
@@ -279,6 +288,8 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
               // Student Selection Dropdown
               DropdownButtonFormField<StudentRegistryModel>(
                 initialValue: _selectedStudent,
+                dropdownColor: ThemeColors.cardBg(context),
+                style: TextStyle(color: ThemeColors.textSecondary(context)),
                 decoration: const InputDecoration(labelText: "Select Student"),
                 items: students.map((s) {
                   return DropdownMenuItem(
@@ -296,6 +307,8 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
               // Subject Dropdown
               DropdownButtonFormField<String>(
                 initialValue: _selectedSubject,
+                dropdownColor: ThemeColors.cardBg(context),
+                style: TextStyle(color: ThemeColors.textSecondary(context)),
                 decoration: const InputDecoration(labelText: "Subject"),
                 items: _subjects.map((sub) {
                   return DropdownMenuItem(value: sub, child: Text(sub));
@@ -309,6 +322,8 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
               // Exam Type Dropdown
               DropdownButtonFormField<String>(
                 initialValue: _selectedExam,
+                dropdownColor: ThemeColors.cardBg(context),
+                style: TextStyle(color: ThemeColors.textSecondary(context)),
                 decoration: const InputDecoration(labelText: "Exam / Test Type"),
                 items: _exams.map((ex) {
                   return DropdownMenuItem(value: ex, child: Text(ex));
@@ -326,6 +341,7 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
                     child: TextFormField(
                       controller: _marksController,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                       decoration: const InputDecoration(
                         labelText: "Marks Obtained",
                         hintText: "e.g. 85",
@@ -344,6 +360,7 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
                     child: TextFormField(
                       controller: _maxMarksController,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                       decoration: const InputDecoration(
                         labelText: "Max Marks",
                         hintText: "e.g. 100",
@@ -370,6 +387,7 @@ class _AddPerformanceDialogState extends ConsumerState<AddPerformanceDialog> {
               // Remarks
               TextFormField(
                 controller: _remarksController,
+                style: TextStyle(color: ThemeColors.textSecondary(context)),
                 decoration: const InputDecoration(
                   labelText: "Teacher Remarks",
                   hintText: "e.g. Excellent logic, keep it up",

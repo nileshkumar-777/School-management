@@ -70,18 +70,18 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           "Student Queries",
           style: TextStyle(
-            color: Color(0xFF0F2C59),
+            color: ThemeColors.primary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -94,12 +94,12 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                 children: [
                   Icon(Icons.chat_bubble_outline_rounded, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "No queries yet",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -122,7 +122,7 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ThemeColors.cardBg(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -159,10 +159,10 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                                 children: [
                                   Text(
                                     query.student,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
-                                      color: Color(0xFF0F2C59),
+                                      color: ThemeColors.primary(context),
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -209,18 +209,18 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                         const SizedBox(height: 12),
                         Text(
                           "Topic: ${query.topic}",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: ThemeColors.textSecondary(context),
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           query.queryText,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: Colors.black87,
+                            color: ThemeColors.textSecondary(context),
                             height: 1.4,
                           ),
                         ),
@@ -229,12 +229,12 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                           const SizedBox(height: 12),
                           const Divider(height: 1),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             "Discussion Thread:",
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F2C59),
+                              color: ThemeColors.primary(context),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -282,7 +282,7 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                                     const SizedBox(height: 4),
                                     Text(
                                       reply.message,
-                                      style: const TextStyle(fontSize: 12.5, color: Colors.black87),
+                                      style: TextStyle(fontSize: 12.5, color: ThemeColors.textSecondary(context)),
                                     ),
                                   ],
                                 ),
@@ -302,7 +302,7 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                                   hintText: "Add to discussion...",
                                   hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                  fillColor: const Color(0xFFEEF2F9),
+                                  fillColor: ThemeColors.accentBg(context),
                                   filled: true,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -314,10 +314,13 @@ class _QueriesViewState extends ConsumerState<QueriesView> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: Color(0xFF0F2C59), width: 1),
+                                    borderSide: BorderSide(color: ThemeColors.primary(context), width: 1),
                                   ),
                                 ),
-                                style: const TextStyle(fontSize: 13),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: ThemeColors.textSecondary(context),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),

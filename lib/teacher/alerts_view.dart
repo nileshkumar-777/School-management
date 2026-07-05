@@ -78,12 +78,12 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Alerts & Notices",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F2C59),
+              color: ThemeColors.primary(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -105,7 +105,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                     label: Text(
                       filter,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : const Color(0xFF0F2C59),
+                        color: isSelected ? Colors.white : ThemeColors.primary(context),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -117,7 +117,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                     },
                     selectedColor: const Color(0xFF0F2C59),
                     checkmarkColor: Colors.white,
-                    backgroundColor: const Color(0xFFEEF2F9),
+                    backgroundColor: ThemeColors.accentBg(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide.none,
@@ -145,7 +145,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: ThemeColors.cardBg(context),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -176,10 +176,10 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                               ),
                               title: Text(
                                 alert['title'] as String,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
-                                  color: Color(0xFF0F2C59),
+                                  color: ThemeColors.primary(context),
                                 ),
                               ),
                               subtitle: Text(
@@ -199,7 +199,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                                       alert['description'] as String,
                                       style: TextStyle(
                                         fontSize: 13.5,
-                                        color: Colors.grey.shade800,
+                                        color: ThemeColors.textSecondary(context),
                                         height: 1.4,
                                       ),
                                     ),

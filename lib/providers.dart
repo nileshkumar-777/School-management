@@ -1090,3 +1090,39 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,
 );
+
+class ThemeColors {
+  static Color primary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF0F2C59);
+  }
+
+  static Color scaffoldBg(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF121212)
+        : const Color(0xFFEEF2F9);
+  }
+
+  static Color cardBg(BuildContext context) {
+    return Theme.of(context).cardColor;
+  }
+
+  static Color textPrimary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF0F2C59);
+  }
+
+  static Color textSecondary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white70
+        : Colors.black87;
+  }
+
+  static Color accentBg(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF2C2C2C)
+        : const Color(0xFFEEF2F9);
+  }
+}

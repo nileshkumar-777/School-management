@@ -35,26 +35,26 @@ class ScheduleView extends ConsumerWidget {
     return DefaultTabController(
       length: days.length,
       child: Scaffold(
-        backgroundColor: const Color(0xFFEEF2F9),
+        backgroundColor: ThemeColors.scaffoldBg(context),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+            icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
             "My Schedule ($studentClassId)",
-            style: const TextStyle(
-              color: Color(0xFF0F2C59),
+            style: TextStyle(
+              color: ThemeColors.primary(context),
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
           ),
           bottom: TabBar(
             isScrollable: false,
-            indicatorColor: const Color(0xFF0F2C59),
-            labelColor: const Color(0xFF0F2C59),
+            indicatorColor: ThemeColors.primary(context),
+            labelColor: ThemeColors.primary(context),
             unselectedLabelColor: Colors.grey,
             labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             tabs: days.map((day) => Tab(text: day.substring(0, 3))).toList(),
@@ -82,7 +82,7 @@ class ScheduleView extends ConsumerWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ThemeColors.cardBg(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -116,24 +116,24 @@ class ScheduleView extends ConsumerWidget {
                                 children: [
                                   Text(
                                     slot.time,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
-                                      color: Color(0xFF0F2C59),
+                                      color: ThemeColors.primary(context),
                                     ),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFEEF2F9),
+                                      color: ThemeColors.accentBg(context),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       slot.type,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF0F2C59),
+                                        color: ThemeColors.primary(context),
                                       ),
                                     ),
                                   ),
@@ -142,10 +142,10 @@ class ScheduleView extends ConsumerWidget {
                               const SizedBox(height: 8),
                               Text(
                                 slot.subject,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: ThemeColors.textSecondary(context),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -207,10 +207,11 @@ class ScheduleView extends ConsumerWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: ThemeColors.cardBg(context),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text(
+              title: Text(
                 "Add Class Slot",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2C59)),
+                style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColors.primary(context)),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -219,16 +220,20 @@ class ScheduleView extends ConsumerWidget {
                     TextField(
                       controller: titleController,
                       decoration: const InputDecoration(labelText: 'Subject Name'),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: roomController,
                       decoration: const InputDecoration(labelText: 'Room Number'),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: selectedDay,
                       decoration: const InputDecoration(labelText: 'Day'),
+                      dropdownColor: ThemeColors.cardBg(context),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                       items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
                           .map((day) => DropdownMenuItem(value: day, child: Text(day)))
                           .toList(),
@@ -238,6 +243,8 @@ class ScheduleView extends ConsumerWidget {
                     DropdownButtonFormField<String>(
                       initialValue: selectedInstructor,
                       decoration: const InputDecoration(labelText: 'Instructor'),
+                      dropdownColor: ThemeColors.cardBg(context),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                       items: ['Dr. Sharma', 'Prof. Verma', 'Prof. Roy', 'Dr. Ananya Sen', 'Dr. Rajesh Patel']
                           .map((inst) => DropdownMenuItem(value: inst, child: Text(inst)))
                           .toList(),
@@ -247,6 +254,8 @@ class ScheduleView extends ConsumerWidget {
                     DropdownButtonFormField<String>(
                       initialValue: selectedType,
                       decoration: const InputDecoration(labelText: 'Slot Type'),
+                      dropdownColor: ThemeColors.cardBg(context),
+                      style: TextStyle(color: ThemeColors.textSecondary(context)),
                       items: ['Theory Lecture', 'Lab Practical', 'Seminar', 'Guest Lecture']
                           .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                           .toList(),
@@ -296,7 +305,7 @@ class ScheduleView extends ConsumerWidget {
                               color: color,
                               shape: BoxShape.circle,
                               border: isSelected
-                                  ? Border.all(color: const Color(0xFF0F2C59), width: 2)
+                                  ? Border.all(color: ThemeColors.primary(context), width: 2)
                                   : null,
                             ),
                           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/providers.dart';
 
 class AttendanceView extends StatefulWidget {
   const AttendanceView({super.key});
@@ -97,10 +98,10 @@ class _AttendanceViewState extends State<AttendanceView> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF0F2C59),
+            colorScheme: ColorScheme.light(
+              primary: ThemeColors.primary(context),
               onPrimary: Colors.white,
-              onSurface: Color(0xFF0F2C59),
+              onSurface: ThemeColors.primary(context),
             ),
           ),
           child: child!,
@@ -125,12 +126,12 @@ class _AttendanceViewState extends State<AttendanceView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
           onPressed: () {
             if (_isMarkingPhase) {
               // Return to config screen
@@ -144,8 +145,8 @@ class _AttendanceViewState extends State<AttendanceView> {
         ),
         title: Text(
           _isMarkingPhase ? "Mark Attendance" : "Attendance Manager",
-          style: const TextStyle(
-            color: Color(0xFF0F2C59),
+          style: TextStyle(
+            color: ThemeColors.primary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -157,17 +158,18 @@ class _AttendanceViewState extends State<AttendanceView> {
 
   // --- Phase 1: Configuration Screen ---
   Widget _buildConfigBody() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Select Class",
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Colors.black54,
+              color: isDark ? Colors.white60 : Colors.black54,
               letterSpacing: 0.8,
             ),
           ),
@@ -175,7 +177,7 @@ class _AttendanceViewState extends State<AttendanceView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: ThemeColors.cardBg(context),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -188,16 +190,17 @@ class _AttendanceViewState extends State<AttendanceView> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedClass,
-                icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF0F2C59)),
+                dropdownColor: ThemeColors.cardBg(context),
+                icon: Icon(Icons.keyboard_arrow_down, color: ThemeColors.primary(context)),
                 isExpanded: true,
                 items: ['CSE 1A', 'CSE 1B', 'CSE 2A', 'ECE 1A'].map((c) {
                   return DropdownMenuItem(
                     value: c,
                     child: Text(
                       c,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F2C59),
+                        color: ThemeColors.primary(context),
                       ),
                     ),
                   );
@@ -215,12 +218,12 @@ class _AttendanceViewState extends State<AttendanceView> {
 
           const SizedBox(height: 24),
 
-          const Text(
+          Text(
             "Select Subject",
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Colors.black54,
+              color: isDark ? Colors.white60 : Colors.black54,
               letterSpacing: 0.8,
             ),
           ),
@@ -228,7 +231,7 @@ class _AttendanceViewState extends State<AttendanceView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: ThemeColors.cardBg(context),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -241,16 +244,17 @@ class _AttendanceViewState extends State<AttendanceView> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedSubject,
-                icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF0F2C59)),
+                dropdownColor: ThemeColors.cardBg(context),
+                icon: Icon(Icons.keyboard_arrow_down, color: ThemeColors.primary(context)),
                 isExpanded: true,
                 items: ['DBMS', 'Data Structures', 'Operating Systems', 'Digital Electronics'].map((s) {
                   return DropdownMenuItem(
                     value: s,
                     child: Text(
                       s,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F2C59),
+                        color: ThemeColors.primary(context),
                       ),
                     ),
                   );
@@ -268,12 +272,12 @@ class _AttendanceViewState extends State<AttendanceView> {
 
           const SizedBox(height: 24),
 
-          const Text(
+          Text(
             "Date",
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Colors.black54,
+              color: isDark ? Colors.white60 : Colors.black54,
               letterSpacing: 0.8,
             ),
           ),
@@ -283,7 +287,7 @@ class _AttendanceViewState extends State<AttendanceView> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ThemeColors.cardBg(context),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -295,14 +299,14 @@ class _AttendanceViewState extends State<AttendanceView> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today_outlined, color: Color(0xFF0F2C59), size: 20),
+                  Icon(Icons.calendar_today_outlined, color: ThemeColors.primary(context), size: 20),
                   const SizedBox(width: 12),
                   Text(
                     _formatDate(_selectedDate),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                     ),
                   ),
                   const Spacer(),
@@ -349,17 +353,17 @@ class _AttendanceViewState extends State<AttendanceView> {
         // Sub-header displaying selected config
         Container(
           width: double.infinity,
-          color: Colors.white,
+          color: ThemeColors.cardBg(context),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "$_selectedClass • $_selectedSubject",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F2C59),
+                  color: ThemeColors.primary(context),
                 ),
               ),
               const SizedBox(height: 4),
@@ -372,10 +376,10 @@ class _AttendanceViewState extends State<AttendanceView> {
                   ),
                   Text(
                     "Present: $_presentCount / ${_students.length}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                     ),
                   ),
                 ],
@@ -402,7 +406,7 @@ class _AttendanceViewState extends State<AttendanceView> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: ThemeColors.cardBg(context),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -417,13 +421,13 @@ class _AttendanceViewState extends State<AttendanceView> {
                   leading: CircleAvatar(
                     backgroundColor: isPresent 
                         ? const Color(0xFFE8F5E9) 
-                        : const Color(0xFFEEF2F9),
+                        : ThemeColors.accentBg(context),
                     child: Text(
                       initials,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: isPresent ? Colors.green.shade800 : const Color(0xFF0F2C59),
+                        color: isPresent ? Colors.green.shade800 : ThemeColors.primary(context),
                       ),
                     ),
                   ),
@@ -432,7 +436,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14.5,
-                      color: isPresent ? Colors.green.shade900 : const Color(0xFF0F2C59),
+                      color: isPresent ? Colors.green.shade900 : ThemeColors.textSecondary(context),
                     ),
                   ),
                   trailing: Checkbox(
@@ -460,7 +464,7 @@ class _AttendanceViewState extends State<AttendanceView> {
 
         // Action Buttons layout
         Container(
-          color: Colors.white,
+          color: ThemeColors.cardBg(context),
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -477,15 +481,15 @@ class _AttendanceViewState extends State<AttendanceView> {
                     });
                   },
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF0F2C59), width: 1.5),
+                    side: BorderSide(color: ThemeColors.primary(context), width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Mark All Present",
                     style: TextStyle(
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),

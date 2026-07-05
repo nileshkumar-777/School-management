@@ -10,20 +10,21 @@ class HomeworkView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final posts = ref.watch(postsProvider);
     final homeworks = posts.where((p) => p.type == "Homework").toList();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           "Homework Assignments",
           style: TextStyle(
-            color: Color(0xFF0F2C59),
+            color: ThemeColors.primary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -36,12 +37,12 @@ class HomeworkView extends ConsumerWidget {
                 children: [
                   Icon(Icons.assignment_outlined, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "No homework yet",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -93,7 +94,7 @@ class HomeworkView extends ConsumerWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ThemeColors.cardBg(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -146,18 +147,18 @@ class HomeworkView extends ConsumerWidget {
                         const SizedBox(height: 12),
                         Text(
                           hw.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F2C59),
+                            color: ThemeColors.primary(context),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           hw.description,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: Colors.black87,
+                            color: ThemeColors.textSecondary(context),
                           ),
                         ),
                         if (hw.attachment != null) ...[
@@ -165,20 +166,20 @@ class HomeworkView extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEEF2F9),
+                              color: ThemeColors.accentBg(context),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.attach_file, size: 16, color: Color(0xFF0F2C59)),
+                                Icon(Icons.attach_file, size: 16, color: ThemeColors.primary(context)),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     hw.attachment!,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF0F2C59),
+                                      color: ThemeColors.primary(context),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -194,10 +195,10 @@ class HomeworkView extends ConsumerWidget {
                           children: [
                             Text(
                               "Submissions: $submissionCount / $enrolledCount Enrolled",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: ThemeColors.textSecondary(context),
                               ),
                             ),
                             Text(
@@ -205,7 +206,7 @@ class HomeworkView extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade600,
+                                color: isDark ? Colors.white70 : Colors.grey.shade600,
                               ),
                             ),
                           ],
@@ -215,8 +216,8 @@ class HomeworkView extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: progress,
-                            backgroundColor: Colors.grey.shade100,
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0F2C59)),
+                            backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+                            valueColor: AlwaysStoppedAnimation<Color>(ThemeColors.primary(context)),
                             minHeight: 6,
                           ),
                         ),
@@ -241,7 +242,7 @@ class HomeworkView extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
@@ -249,11 +250,11 @@ class HomeworkView extends ConsumerWidget {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0F2C59),
+                                      color: ThemeColors.primary(context),
                                     ),
                                   ),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.chevron_right, size: 16, color: Color(0xFF0F2C59)),
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.chevron_right, size: 16, color: ThemeColors.primary(context)),
                                 ],
                               ),
                             ),
@@ -274,8 +275,8 @@ class HomeworkView extends ConsumerWidget {
               builder: (context) => Scaffold(
                 appBar: AppBar(
                   title: const Text("Create Post"),
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF0F2C59),
+                  backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+                  foregroundColor: ThemeColors.primary(context),
                   elevation: 0,
                 ),
                 body: const CreateView(),
@@ -289,6 +290,7 @@ class HomeworkView extends ConsumerWidget {
   }
 
   void _showSubmissionsDialog(BuildContext context, PostModel hw, List<HomeworkSubmissionModel> submissions) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) {
@@ -296,7 +298,7 @@ class HomeworkView extends ConsumerWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             "Submissions - ${hw.title}",
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2C59)),
+            style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColors.primary(context)),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -318,7 +320,7 @@ class HomeworkView extends ConsumerWidget {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEEF2F9),
+                          color: ThemeColors.accentBg(context),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -329,7 +331,7 @@ class HomeworkView extends ConsumerWidget {
                               children: [
                                 Text(
                                   sub.studentName,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F2C59)),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: ThemeColors.primary(context)),
                                 ),
                                 Text(
                                   "${sub.submittedAt.day}/${sub.submittedAt.month} • ${sub.submittedAt.hour}:${sub.submittedAt.minute.toString().padLeft(2, '0')}",
@@ -342,13 +344,13 @@ class HomeworkView extends ConsumerWidget {
                               style: const TextStyle(fontSize: 11, color: Colors.grey),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
+                            Text(
                               "Answer / Link:",
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black54),
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isDark ? Colors.white60 : Colors.black54),
                             ),
                             Text(
                               sub.submissionText,
-                              style: const TextStyle(fontSize: 12, color: Colors.black87),
+                              style: TextStyle(fontSize: 12, color: ThemeColors.textSecondary(context)),
                             ),
                           ],
                         ),

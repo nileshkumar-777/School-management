@@ -10,20 +10,21 @@ class NotesView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final posts = ref.watch(postsProvider);
     final notes = posts.where((p) => p.type == "Notes").toList();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           "Study Notes & Materials",
           style: TextStyle(
-            color: Color(0xFF0F2C59),
+            color: ThemeColors.primary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -36,12 +37,12 @@ class NotesView extends ConsumerWidget {
                 children: [
                   Icon(Icons.menu_book, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "No study notes yet",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -63,7 +64,7 @@ class NotesView extends ConsumerWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ThemeColors.cardBg(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -86,9 +87,9 @@ class NotesView extends ConsumerWidget {
                                 color: note.color.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.picture_as_pdf,
-                                color: Color(0xFF0F2C59),
+                                color: ThemeColors.primary(context),
                                 size: 24,
                               ),
                             ),
@@ -99,10 +100,10 @@ class NotesView extends ConsumerWidget {
                                 children: [
                                   Text(
                                     note.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0F2C59),
+                                      color: ThemeColors.primary(context),
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -110,9 +111,9 @@ class NotesView extends ConsumerWidget {
                                   const SizedBox(height: 4),
                                   Text(
                                     note.description,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.black87,
+                                      color: ThemeColors.textSecondary(context),
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -126,20 +127,20 @@ class NotesView extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEEF2F9),
+                            color: ThemeColors.accentBg(context),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.insert_drive_file_outlined, size: 16, color: Colors.black54),
+                              Icon(Icons.insert_drive_file_outlined, size: 16, color: isDark ? Colors.white60 : Colors.black54),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   fileName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
+                                    color: ThemeColors.textSecondary(context),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -175,11 +176,11 @@ class NotesView extends ConsumerWidget {
                             ),
                             const Spacer(),
                             IconButton(
-                              icon: const Icon(Icons.share, size: 18, color: Color(0xFF0F2C59)),
+                              icon: Icon(Icons.share, size: 18, color: ThemeColors.primary(context)),
                               onPressed: () {},
                             ),
                             IconButton(
-                              icon: const Icon(Icons.download, size: 18, color: Color(0xFF0F2C59)),
+                              icon: Icon(Icons.download, size: 18, color: ThemeColors.primary(context)),
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -206,8 +207,8 @@ class NotesView extends ConsumerWidget {
               builder: (context) => Scaffold(
                 appBar: AppBar(
                   title: const Text("Create Post"),
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF0F2C59),
+                  backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+                  foregroundColor: ThemeColors.primary(context),
                   elevation: 0,
                 ),
                 body: const CreateView(),

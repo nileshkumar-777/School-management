@@ -68,6 +68,7 @@ class _HomeworkViewState extends ConsumerState<HomeworkView> {
     final userName = displayName.split('|').first.trim();
 
     final submissions = ref.watch(homeworkSubmissionsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Dynamically resolve enrolled class IDs to filter homework assignments targeting those specific classes or "All".
     final enrolledClassIds = classes
@@ -88,18 +89,18 @@ class _HomeworkViewState extends ConsumerState<HomeworkView> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           "My Homework",
           style: TextStyle(
-            color: Color(0xFF0F2C59),
+            color: ThemeColors.primary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -112,12 +113,12 @@ class _HomeworkViewState extends ConsumerState<HomeworkView> {
                 children: [
                   Icon(Icons.assignment_outlined, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "No homework assignments",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F2C59),
+                      color: ThemeColors.primary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -140,7 +141,7 @@ class _HomeworkViewState extends ConsumerState<HomeworkView> {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ThemeColors.cardBg(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -150,202 +151,210 @@ class _HomeworkViewState extends ConsumerState<HomeworkView> {
                       ),
                     ],
                   ),
-                  child: ExpansionTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: hw.color.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.assignment_outlined, color: Color(0xFF0F2C59)),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
                     ),
-                    title: Text(
-                      hw.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Color(0xFF0F2C59),
+                    child: ExpansionTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: hw.color.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.assignment_outlined, color: ThemeColors.primary(context)),
                       ),
-                    ),
-                    subtitle: const Text(
-                      "Status: Active",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: (isSubmitted ? Colors.blue : Colors.orange).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        isSubmitted ? "Submitted" : "Pending",
+                      title: Text(
+                        hw.title,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          color: isSubmitted ? Colors.blue : Colors.orange,
+                          fontSize: 15,
+                          color: ThemeColors.primary(context),
                         ),
                       ),
-                    ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Divider(height: 1),
-                            const SizedBox(height: 12),
-                            const Text(
-                              "Task Description",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              hw.description,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black87,
-                                height: 1.4,
-                              ),
-                            ),
-                            if (hw.attachment != null) ...[
+                      subtitle: const Text(
+                        "Status: Active",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: (isSubmitted ? Colors.blue : Colors.orange).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          isSubmitted ? "Submitted" : "Pending",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: isSubmitted ? Colors.blue : Colors.orange,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(height: 1),
                               const SizedBox(height: 12),
-                              const Text(
-                                "Attached File",
+                              Text(
+                                "Task Description",
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black54,
+                                  color: isDark ? Colors.white60 : Colors.black54,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEEF2F9),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        hw.attachment!,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF0F2C59),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.download, size: 18, color: Color(0xFF0F2C59)),
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text("Downloading ${hw.attachment}..."),
-                                            behavior: SnackBarBehavior.floating,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
+                              Text(
+                                hw.description,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: ThemeColors.textSecondary(context),
+                                  height: 1.4,
                                 ),
                               ),
-                            ],
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                const Icon(Icons.access_time_outlined, size: 14, color: Colors.grey),
-                                const SizedBox(width: 6),
+                              if (hw.attachment != null) ...[
+                                const SizedBox(height: 12),
                                 Text(
-                                  "Published: ${hw.date.day}/${hw.date.month}/${hw.date.year}",
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  "Attached File",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white60 : Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: ThemeColors.accentBg(context),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          hw.attachment!,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: ThemeColors.primary(context),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.download, size: 18, color: ThemeColors.primary(context)),
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text("Downloading ${hw.attachment}..."),
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                            ),
-                            if (isSubmitted) ...[
-                              const SizedBox(height: 16),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.blue.withValues(alpha: 0.15)),
-                                ),
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.hourglass_empty, size: 16, color: Colors.blue),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      "Waiting for evaluation",
-                                      style: TextStyle(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ] else ...[
-                              const SizedBox(height: 16),
-                              const Text(
-                                "Submit Answer / Paste Link",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
                               Row(
                                 children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _controllers[id],
-                                      decoration: InputDecoration(
-                                        hintText: "Type answer or GitHub/Drive link...",
-                                        hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                        fillColor: const Color(0xFFEEF2F9),
-                                        filled: true,
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                      ),
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: () => _submitHomework(id, userEmail, userName),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0F2C59),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: const Icon(Icons.send, size: 18),
+                                  const Icon(Icons.access_time_outlined, size: 14, color: Colors.grey),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Published: ${hw.date.day}/${hw.date.month}/${hw.date.year}",
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),
+                              if (isSubmitted) ...[
+                                const SizedBox(height: 16),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.blue.withValues(alpha: 0.15)),
+                                  ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.hourglass_empty, size: 16, color: Colors.blue),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Waiting for evaluation",
+                                        style: TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ] else ...[
+                                const SizedBox(height: 16),
+                                Text(
+                                  "Submit Answer / Paste Link",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white60 : Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _controllers[id],
+                                        decoration: InputDecoration(
+                                          hintText: "Type answer or GitHub/Drive link...",
+                                          hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                          fillColor: ThemeColors.accentBg(context),
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                        ),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: ThemeColors.textSecondary(context),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () => _submitHomework(id, userEmail, userName),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF0F2C59),
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: const Icon(Icons.send, size: 18),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

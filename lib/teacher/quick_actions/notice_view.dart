@@ -29,18 +29,18 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: ThemeColors.scaffoldBg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.arrow_back, color: ThemeColors.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           "Notices & Circulars",
           style: TextStyle(
-            color: Color(0xFF0F2C59),
+            color: ThemeColors.primary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -62,7 +62,7 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                     label: Text(
                       filter,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : const Color(0xFF0F2C59),
+                        color: isSelected ? Colors.white : ThemeColors.primary(context),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -74,7 +74,7 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                     },
                     selectedColor: const Color(0xFF0F2C59),
                     checkmarkColor: Colors.white,
-                    backgroundColor: const Color(0xFFEEF2F9),
+                    backgroundColor: ThemeColors.accentBg(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide.none,
@@ -95,10 +95,10 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                           const SizedBox(height: 16),
                           Text(
                             "No $selectedFilter yet",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F2C59),
+                              color: ThemeColors.primary(context),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -119,7 +119,7 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: ThemeColors.cardBg(context),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -179,18 +179,18 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                                 const SizedBox(height: 12),
                                 Text(
                                   notice.title,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF0F2C59),
+                                    color: ThemeColors.primary(context),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   notice.description,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.black87,
+                                    color: ThemeColors.textSecondary(context),
                                     height: 1.4,
                                   ),
                                 ),
@@ -243,8 +243,8 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
               builder: (context) => Scaffold(
                 appBar: AppBar(
                   title: const Text("Create Post"),
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF0F2C59),
+                  backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+                  foregroundColor: ThemeColors.primary(context),
                   elevation: 0,
                 ),
                 body: const CreateView(),

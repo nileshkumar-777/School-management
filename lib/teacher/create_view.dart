@@ -33,10 +33,10 @@ class _CreateViewState extends ConsumerState<CreateView> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF0F2C59),
+            colorScheme: ColorScheme.light(
+              primary: ThemeColors.primary(context),
               onPrimary: Colors.white,
-              onSurface: Color(0xFF0F2C59),
+              onSurface: ThemeColors.primary(context),
             ),
           ),
           child: child!,
@@ -52,10 +52,10 @@ class _CreateViewState extends ConsumerState<CreateView> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF0F2C59),
+            colorScheme: ColorScheme.light(
+              primary: ThemeColors.primary(context),
               onPrimary: Colors.white,
-              onSurface: Color(0xFF0F2C59),
+              onSurface: ThemeColors.primary(context),
             ),
           ),
           child: child!,
@@ -78,6 +78,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
   @override
   Widget build(BuildContext context) {
     final classes = ref.watch(classesProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeClass = classes.any((c) => c.id == _selectedClass)
         ? _selectedClass
         : (classes.isNotEmpty ? classes.first.id : '');
@@ -87,12 +88,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Create Post",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F2C59),
+              color: ThemeColors.primary(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -134,12 +135,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
             ),
           ] else ...[
             // Post Type Selection
-            const Text(
+            Text(
               "POST TYPE",
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Colors.black54,
+                color: isDark ? Colors.white60 : Colors.black54,
                 letterSpacing: 1.1,
               ),
             ),
@@ -153,7 +154,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                     label: Text(
                       type,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : const Color(0xFF0F2C59),
+                        color: isSelected ? Colors.white : ThemeColors.primary(context),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -166,7 +167,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                       }
                     },
                     selectedColor: const Color(0xFF0F2C59),
-                    backgroundColor: const Color(0xFFEEF2F9),
+                    backgroundColor: ThemeColors.accentBg(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide.none,
@@ -179,12 +180,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
             const SizedBox(height: 24),
 
             // Target Class Selection
-            const Text(
+            Text(
               "TARGET CLASS",
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Colors.black54,
+                color: isDark ? Colors.white60 : Colors.black54,
                 letterSpacing: 1.1,
               ),
             ),
@@ -192,12 +193,14 @@ class _CreateViewState extends ConsumerState<CreateView> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFFEEF2F9),
+                color: ThemeColors.accentBg(context),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: activeClass.isEmpty ? null : activeClass,
+                  dropdownColor: ThemeColors.cardBg(context),
+                  style: TextStyle(color: ThemeColors.textSecondary(context)),
                   items: classes.map((c) {
                     return DropdownMenuItem(
                       value: c.id,
@@ -211,7 +214,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                       });
                     }
                   },
-                  icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF0F2C59)),
+                  icon: Icon(Icons.arrow_drop_down, color: ThemeColors.primary(context)),
                   isExpanded: true,
                 ),
               ),
@@ -220,22 +223,24 @@ class _CreateViewState extends ConsumerState<CreateView> {
             const SizedBox(height: 24),
 
             // Title
-            const Text(
+            Text(
               "TITLE",
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Colors.black54,
+                color: isDark ? Colors.white60 : Colors.black54,
                 letterSpacing: 1.1,
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _titleController,
+              style: TextStyle(color: ThemeColors.textSecondary(context)),
               decoration: InputDecoration(
                 hintText: "e.g., Assignment 3: Trees & Graphs",
+                hintStyle: const TextStyle(color: Colors.grey),
                 filled: true,
-                fillColor: const Color(0xFFEEF2F9),
+                fillColor: ThemeColors.accentBg(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -246,12 +251,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
             const SizedBox(height: 24),
 
             // Description
-            const Text(
+            Text(
               "DESCRIPTION / DETAILS",
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Colors.black54,
+                color: isDark ? Colors.white60 : Colors.black54,
                 letterSpacing: 1.1,
               ),
             ),
@@ -259,10 +264,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
             TextField(
               controller: _descriptionController,
               maxLines: 5,
+              style: TextStyle(color: ThemeColors.textSecondary(context)),
               decoration: InputDecoration(
                 hintText: "Provide post details, task instructions, or resource links here...",
+                hintStyle: const TextStyle(color: Colors.grey),
                 filled: true,
-                fillColor: const Color(0xFFEEF2F9),
+                fillColor: ThemeColors.accentBg(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -272,12 +279,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
 
             if (_selectedType == 'Homework') ...[
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 "ATTACHMENTS",
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black54,
+                  color: isDark ? Colors.white60 : Colors.black54,
                   letterSpacing: 1.1,
                 ),
               ),
@@ -288,24 +295,24 @@ class _CreateViewState extends ConsumerState<CreateView> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2F9),
+                    color: ThemeColors.accentBg(context),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.grey.shade300,
+                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
                       style: BorderStyle.solid,
                       width: 1,
                     ),
                   ),
                   child: _attachedFileName == null
-                      ? const Row(
+                      ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.attach_file, color: Color(0xFF0F2C59)),
-                            SizedBox(width: 8),
+                            Icon(Icons.attach_file, color: ThemeColors.primary(context)),
+                            const SizedBox(width: 8),
                             Text(
                               "Tap to attach a mock file",
                               style: TextStyle(
-                                color: Color(0xFF0F2C59),
+                                color: ThemeColors.primary(context),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13.5,
                               ),
@@ -319,10 +326,10 @@ class _CreateViewState extends ConsumerState<CreateView> {
                             Expanded(
                               child: Text(
                                 _attachedFileName!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13.5,
-                                  color: Color(0xFF0F2C59),
+                                  color: ThemeColors.primary(context),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -344,12 +351,12 @@ class _CreateViewState extends ConsumerState<CreateView> {
 
             if (_selectedType == 'Notice' || _selectedType == 'Alert') ...[
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 "DELETE DATE & TIME (OPTIONAL)",
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black54,
+                  color: isDark ? Colors.white60 : Colors.black54,
                   letterSpacing: 1.1,
                 ),
               ),
@@ -360,7 +367,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEEF2F9),
+                        color: ThemeColors.accentBg(context),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -372,14 +379,14 @@ class _CreateViewState extends ConsumerState<CreateView> {
                           fontWeight: FontWeight.bold,
                           color: _selectedDeleteDateTime == null
                               ? Colors.grey.shade600
-                              : const Color(0xFF0F2C59),
+                              : ThemeColors.primary(context),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.calendar_month, color: Color(0xFF0F2C59)),
+                    icon: Icon(Icons.calendar_month, color: ThemeColors.primary(context)),
                     onPressed: () => _pickDeleteDateTime(context),
                   ),
                   if (_selectedDeleteDateTime != null)
@@ -487,10 +494,11 @@ class _CreateViewState extends ConsumerState<CreateView> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: ThemeColors.cardBg(context),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
+          title: Text(
             "Select Mock File",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2C59)),
+            style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColors.primary(context)),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -500,7 +508,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                   fileName.endsWith('.pdf') ? Icons.picture_as_pdf : Icons.description,
                   color: fileName.endsWith('.pdf') ? Colors.red : Colors.blue,
                 ),
-                title: Text(fileName, style: const TextStyle(fontSize: 14)),
+                title: Text(fileName, style: TextStyle(fontSize: 14, color: ThemeColors.textSecondary(context))),
                 onTap: () {
                   setState(() {
                     _attachedFileName = fileName;

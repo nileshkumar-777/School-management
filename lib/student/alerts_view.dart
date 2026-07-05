@@ -70,12 +70,12 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Alerts & Notices",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F2C59),
+              color: ThemeColors.primary(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -86,35 +86,38 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
           const SizedBox(height: 20),
 
           // Filter chips
-          Row(
-            children: ['All', 'Notices', 'Alerts', 'Queries'].map((filter) {
-              final isSelected = selectedFilter == filter;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: FilterChip(
-                  label: Text(
-                    filter,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF0F2C59),
-                      fontWeight: FontWeight.bold,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: ['All', 'Notices', 'Alerts', 'Queries'].map((filter) {
+                final isSelected = selectedFilter == filter;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: FilterChip(
+                    label: Text(
+                      filter,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : ThemeColors.primary(context),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedFilter = filter;
+                      });
+                    },
+                    selectedColor: const Color(0xFF0F2C59),
+                    checkmarkColor: Colors.white,
+                    backgroundColor: ThemeColors.accentBg(context),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide.none,
                     ),
                   ),
-                  selected: isSelected,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedFilter = filter;
-                    });
-                  },
-                  selectedColor: const Color(0xFF0F2C59),
-                  checkmarkColor: Colors.white,
-                  backgroundColor: const Color(0xFFEEF2F9),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: BorderSide.none,
-                  ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
           const SizedBox(height: 20),
 
@@ -130,10 +133,10 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                             const SizedBox(height: 16),
                             Text(
                               "No $selectedFilter found",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F2C59),
+                                color: ThemeColors.primary(context),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -154,7 +157,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: ThemeColors.cardBg(context),
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
@@ -185,10 +188,10 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                                   ),
                                   title: Text(
                                     note.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
-                                      color: Color(0xFF0F2C59),
+                                      color: ThemeColors.primary(context),
                                     ),
                                   ),
                                   subtitle: Text(
@@ -204,7 +207,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                                           note.description,
                                           style: TextStyle(
                                             fontSize: 13.5,
-                                            color: Colors.grey.shade800,
+                                            color: ThemeColors.textSecondary(context),
                                             height: 1.4,
                                           ),
                                         ),
@@ -264,12 +267,12 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
           children: [
             Icon(Icons.question_answer_outlined, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               "No Queries Found",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F2C59),
+                color: ThemeColors.primary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -293,7 +296,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: ThemeColors.cardBg(context),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -324,10 +327,10 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                 ),
                 title: Text(
                   query.topic,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: Color(0xFF0F2C59),
+                    color: ThemeColors.primary(context),
                   ),
                 ),
                 subtitle: Text(
@@ -370,7 +373,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                             query.queryText,
                             style: TextStyle(
                               fontSize: 13.5,
-                              color: Colors.grey.shade800,
+                              color: ThemeColors.textSecondary(context),
                               height: 1.4,
                             ),
                           ),
@@ -378,12 +381,12 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                             const SizedBox(height: 16),
                             const Divider(height: 1),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
                               "Discussion Thread:",
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F2C59),
+                                color: ThemeColors.primary(context),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -431,7 +434,7 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                                       const SizedBox(height: 4),
                                       Text(
                                         reply.message,
-                                        style: const TextStyle(fontSize: 12.5, color: Colors.black87),
+                                        style: TextStyle(fontSize: 12.5, color: ThemeColors.textSecondary(context)),
                                       ),
                                     ],
                                   ),
@@ -451,14 +454,25 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
                                     hintText: "Add to discussion...",
                                     hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    fillColor: const Color(0xFFEEF2F9),
+                                    fillColor: ThemeColors.accentBg(context),
                                     filled: true,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                       borderSide: BorderSide.none,
                                     ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(color: ThemeColors.primary(context), width: 1),
+                                    ),
                                   ),
-                                  style: const TextStyle(fontSize: 13),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: ThemeColors.textSecondary(context),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
