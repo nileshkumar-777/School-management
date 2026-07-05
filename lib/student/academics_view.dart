@@ -15,19 +15,20 @@ class AcademicsView extends ConsumerWidget {
     // Filter records for the logged-in student
     final studentRecords = allAcademics.where((record) => record.studentEmail == userEmail).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFEEF2F9),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "My Academics",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F2C59),
+                color: isDark ? Colors.white : const Color(0xFF0F2C59),
               ),
             ),
             const SizedBox(height: 8),
@@ -45,12 +46,12 @@ class AcademicsView extends ConsumerWidget {
                         children: [
                           Icon(Icons.analytics_outlined, size: 64, color: Colors.grey.shade400),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             "No academic records found",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F2C59),
+                              color: isDark ? Colors.white : const Color(0xFF0F2C59),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -70,7 +71,7 @@ class AcademicsView extends ConsumerWidget {
                           margin: const EdgeInsets.only(bottom: 16),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -89,15 +90,15 @@ class AcademicsView extends ConsumerWidget {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFE2EDFF),
+                                      color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE2EDFF),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
                                       record.examName,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 11,
-                                        color: Color(0xFF0F2C59),
+                                        color: isDark ? Colors.white : const Color(0xFF0F2C59),
                                       ),
                                     ),
                                   ),
@@ -124,10 +125,10 @@ class AcademicsView extends ConsumerWidget {
                               const SizedBox(height: 12),
                               Text(
                                 record.subject,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
-                                  color: Color(0xFF0F2C59),
+                                  color: isDark ? Colors.white : const Color(0xFF0F2C59),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -137,7 +138,11 @@ class AcademicsView extends ConsumerWidget {
                                   const SizedBox(width: 6),
                                   Text(
                                     "Marks: ${record.marksObtained.toStringAsFixed(0)} / ${record.maxMarks.toStringAsFixed(0)}",
-                                    style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark ? Colors.white70 : Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -152,7 +157,11 @@ class AcademicsView extends ConsumerWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   record.remarks,
-                                  style: const TextStyle(fontSize: 13, color: Colors.black87, fontStyle: FontStyle.italic),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark ? Colors.white70 : Colors.black87,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
                               ],
                             ],

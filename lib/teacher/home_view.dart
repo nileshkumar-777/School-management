@@ -37,7 +37,7 @@ class TeacherHomeView extends ConsumerWidget {
         children: [
           _buildHeader(context, user),
           const SizedBox(height: 24),
-          _buildSectionTitle("TODAY'S SUMMARY"),
+          _buildSectionTitle(context, "TODAY'S SUMMARY"),
           const SizedBox(height: 12),
           _buildSummaryGrid(
             context,
@@ -48,17 +48,17 @@ class TeacherHomeView extends ConsumerWidget {
             notices: totalNotices,
           ),
           const SizedBox(height: 24),
-          _buildSectionTitle("QUICK ACTIONS"),
+          _buildSectionTitle(context, "QUICK ACTIONS"),
           const SizedBox(height: 12),
           _buildQuickActions(context, ref),
           const SizedBox(height: 24),
-          _buildMyClassesHeader(),
+          _buildMyClassesHeader(context),
           const SizedBox(height: 12),
-          _buildMyClassesList(classes),
+          _buildMyClassesList(context, classes),
           const SizedBox(height: 24),
-          _buildSectionTitle("RECENT ACTIVITY"),
+          _buildSectionTitle(context, "RECENT ACTIVITY"),
           const SizedBox(height: 12),
-          _buildRecentActivityList(posts, queries),
+          _buildRecentActivityList(context, posts, queries),
           const SizedBox(height: 40), // Bottom padding for scroll clearance
         ],
       ),
@@ -69,6 +69,8 @@ class TeacherHomeView extends ConsumerWidget {
   Widget _buildHeader(BuildContext context, User? user) {
     final displayName = user?.displayName ?? "Dr. Sharma";
     final avatarUrl = user?.photoURL ?? 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(displayName)}&background=random';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimaryColor = isDark ? Colors.white : const Color(0xFF0F2C59);
 
     return Row(
       children: [
@@ -100,10 +102,10 @@ class TeacherHomeView extends ConsumerWidget {
             children: [
               Text(
                 "Good Morning,\n$displayName",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F2C59),
+                  color: textPrimaryColor,
                   height: 1.2,
                 ),
               ),
@@ -122,11 +124,11 @@ class TeacherHomeView extends ConsumerWidget {
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.calendar_today_outlined, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.calendar_today_outlined, color: textPrimaryColor),
           onPressed: () {},
         ),
         IconButton(
-          icon: const Icon(Icons.logout, color: Color(0xFF0F2C59)),
+          icon: Icon(Icons.logout, color: textPrimaryColor),
           tooltip: "Logout",
           onPressed: () async {
             await FirebaseAuth.instance.signOut();
@@ -145,14 +147,15 @@ class TeacherHomeView extends ConsumerWidget {
   }
 
   // --- Reusable Section Title ---
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
-        color: Colors.black54,
+        color: isDark ? Colors.white60 : Colors.black54,
       ),
     );
   }
@@ -436,20 +439,30 @@ class TeacherHomeView extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFEEF2F9),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2C2C2C)
+                  : const Color(0xFFEEF2F9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                Icon(action["icon"] as IconData, size: 20, color: const Color(0xFF0F2C59)),
+                Icon(
+                  action["icon"] as IconData,
+                  size: 20,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white70
+                      : const Color(0xFF0F2C59),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white70
+                          : Colors.black87,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -464,11 +477,11 @@ class TeacherHomeView extends ConsumerWidget {
   }
 
   // --- My Classes Section ---
-  Widget _buildMyClassesHeader() {
+  Widget _buildMyClassesHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildSectionTitle("MY CLASSES"),
+        _buildSectionTitle(context, "MY CLASSES"),
         const Text(
           "View All",
           style: TextStyle(
@@ -481,30 +494,31 @@ class TeacherHomeView extends ConsumerWidget {
     );
   }
 
-  Widget _buildMyClassesList(List<ClassModel> classes) {
+  Widget _buildMyClassesList(BuildContext context, List<ClassModel> classes) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (classes.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: isDark ? Colors.transparent : Colors.grey.shade200),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            Icon(Icons.school_outlined, color: Colors.grey, size: 36),
-            SizedBox(height: 12),
+            const Icon(Icons.school_outlined, color: Colors.grey, size: 36),
+            const SizedBox(height: 12),
             Text(
               "No classes created yet",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
-                color: Color(0xFF0F2C59),
+                color: isDark ? Colors.white : const Color(0xFF0F2C59),
               ),
             ),
-            SizedBox(height: 4),
-            Text(
+            const SizedBox(height: 4),
+            const Text(
               "Tap the 'Classes' tab or 'Create' tab to set up your first class.",
               style: TextStyle(fontSize: 12, color: Colors.grey),
               textAlign: TextAlign.center,
@@ -519,7 +533,7 @@ class TeacherHomeView extends ConsumerWidget {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -555,8 +569,9 @@ class TeacherHomeView extends ConsumerWidget {
   }
 
   // --- Recent Activity Section ---
-  Widget _buildRecentActivityList(List<PostModel> posts, List<QueryModel> queries) {
+  Widget _buildRecentActivityList(BuildContext context, List<PostModel> posts, List<QueryModel> queries) {
     final List<Map<String, dynamic>> activities = [];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     for (final p in posts) {
       activities.add({
@@ -593,7 +608,7 @@ class TeacherHomeView extends ConsumerWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFEEF2F9),
+          color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEEF2F9),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Row(
@@ -618,6 +633,7 @@ class TeacherHomeView extends ConsumerWidget {
         final idx = entry.key;
         final act = entry.value;
         return _buildActivityItem(
+          context,
           color: act["color"] as Color,
           title: act["title"] as String,
           target: act["target"] as String,
@@ -629,7 +645,8 @@ class TeacherHomeView extends ConsumerWidget {
     );
   }
 
-  Widget _buildActivityItem({
+  Widget _buildActivityItem(
+    BuildContext context, {
     required Color color,
     required String title,
     required String target,
@@ -637,6 +654,7 @@ class TeacherHomeView extends ConsumerWidget {
     bool isFirst = false,
     bool isLast = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -656,7 +674,7 @@ class TeacherHomeView extends ConsumerWidget {
               Container(
                 width: 2,
                 height: 60, // Adjust height based on content
-                color: Colors.grey.shade300,
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
               )
           ],
         ),
@@ -667,7 +685,7 @@ class TeacherHomeView extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFEEF2F9),
+              color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEEF2F9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -675,7 +693,10 @@ class TeacherHomeView extends ConsumerWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.black87, fontSize: 13),
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                      fontSize: 13,
+                    ),
                     children: [
                       TextSpan(
                         text: "$title to ",

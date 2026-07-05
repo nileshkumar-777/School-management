@@ -13,19 +13,20 @@ class ClassesView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final classes = ref.watch(classesProvider);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F9),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFEEF2F9),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "My Classes",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F2C59),
+                color: isDark ? Colors.white : const Color(0xFF0F2C59),
               ),
             ),
             const SizedBox(height: 8),
@@ -43,12 +44,12 @@ class ClassesView extends ConsumerWidget {
                         children: [
                           Icon(Icons.school_outlined, size: 64, color: Colors.grey.shade400),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             "No classes created yet",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F2C59),
+                              color: isDark ? Colors.white : const Color(0xFF0F2C59),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -67,7 +68,7 @@ class ClassesView extends ConsumerWidget {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -92,10 +93,10 @@ class ClassesView extends ConsumerWidget {
                               ),
                               title: Text(
                                 c.id,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
-                                  color: Color(0xFF0F2C59),
+                                  color: isDark ? Colors.white : const Color(0xFF0F2C59),
                                 ),
                               ),
                               subtitle: Text(
@@ -116,7 +117,10 @@ class ClassesView extends ConsumerWidget {
                                           const SizedBox(width: 8),
                                           Text(
                                             "${c.studentsCount} Students Enrolled",
-                                            style: const TextStyle(fontSize: 13, color: Colors.black87),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: isDark ? Colors.white70 : Colors.black87,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -128,7 +132,10 @@ class ClassesView extends ConsumerWidget {
                                           Expanded(
                                             child: Text(
                                               c.time,
-                                              style: const TextStyle(fontSize: 13, color: Colors.black87),
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: isDark ? Colors.white70 : Colors.black87,
+                                              ),
                                             ),
                                           ),
                                         ],

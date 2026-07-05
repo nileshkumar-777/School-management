@@ -42,9 +42,9 @@ class StudentHomeView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(user),
+          _buildHeader(context, user),
           const SizedBox(height: 24),
-          _buildSectionTitle("TODAY'S SUMMARY"),
+          _buildSectionTitle(context, "TODAY'S SUMMARY"),
           const SizedBox(height: 12),
           _buildSummaryGrid(
             context,
@@ -54,21 +54,21 @@ class StudentHomeView extends ConsumerWidget {
             classCount: studentClasses.length,
           ),
           const SizedBox(height: 24),
-          _buildSectionTitle("QUICK ACTIONS"),
+          _buildSectionTitle(context, "QUICK ACTIONS"),
           const SizedBox(height: 12),
           _buildQuickActions(context, ref),
           const SizedBox(height: 24),
-          _buildSectionTitle("TODAY'S CLASSES"),
+          _buildSectionTitle(context, "TODAY'S CLASSES"),
           const SizedBox(height: 12),
-          _buildTodayClasses(studentClasses),
+          _buildTodayClasses(context, studentClasses),
           const SizedBox(height: 24),
-          _buildSectionTitle("RECENT ACTIVITY"),
+          _buildSectionTitle(context, "RECENT ACTIVITY"),
           const SizedBox(height: 12),
-          _buildRecentActivityList(noticesAndAlerts, homeworks, studentQueries),
+          _buildRecentActivityList(context, noticesAndAlerts, homeworks, studentQueries),
           const SizedBox(height: 24),
-          _buildSectionTitle("UPCOMING DEADLINES"),
+          _buildSectionTitle(context, "UPCOMING DEADLINES"),
           const SizedBox(height: 12),
-          _buildUpcomingDeadlines(homeworks),
+          _buildUpcomingDeadlines(context, homeworks),
           const SizedBox(height: 40), // Bottom padding for scroll clearance
         ],
       ),
@@ -76,9 +76,11 @@ class StudentHomeView extends ConsumerWidget {
   }
 
   // --- Header Section ---
-  Widget _buildHeader(User? user) {
+  Widget _buildHeader(BuildContext context, User? user) {
     final displayName = user?.displayName ?? "Nilesh Kumar";
     final avatarUrl = user?.photoURL ?? 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(displayName)}&background=random';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimaryColor = isDark ? Colors.white : const Color(0xFF0F2C59);
 
     return Row(
       children: [
@@ -110,10 +112,10 @@ class StudentHomeView extends ConsumerWidget {
             children: [
               Text(
                 "Good Morning,\n$displayName",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F2C59),
+                  color: textPrimaryColor,
                   height: 1.2,
                 ),
               ),
@@ -134,14 +136,15 @@ class StudentHomeView extends ConsumerWidget {
   }
 
   // --- Reusable Section Title ---
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
-        color: Colors.black54,
+        color: isDark ? Colors.white60 : Colors.black54,
       ),
     );
   }
@@ -316,20 +319,30 @@ class StudentHomeView extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFEEF2F9),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2C2C2C)
+                  : const Color(0xFFEEF2F9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                Icon(action["icon"] as IconData, size: 20, color: const Color(0xFF0F2C59)),
+                Icon(
+                  action["icon"] as IconData,
+                  size: 20,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white70
+                      : const Color(0xFF0F2C59),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white70
+                          : Colors.black87,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -344,26 +357,27 @@ class StudentHomeView extends ConsumerWidget {
   }
 
   // --- Today's Classes List ---
-  Widget _buildTodayClasses(List<ClassModel> studentClasses) {
+  Widget _buildTodayClasses(BuildContext context, List<ClassModel> studentClasses) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (studentClasses.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: isDark ? Colors.transparent : Colors.grey.shade200),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            Icon(Icons.class_outlined, color: Colors.grey, size: 36),
-            SizedBox(height: 12),
+            const Icon(Icons.class_outlined, color: Colors.grey, size: 36),
+            const SizedBox(height: 12),
             Text(
               "No classes scheduled today",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
-                color: Color(0xFF0F2C59),
+                color: isDark ? Colors.white : const Color(0xFF0F2C59),
               ),
             ),
           ],
@@ -376,7 +390,7 @@ class StudentHomeView extends ConsumerWidget {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -413,11 +427,13 @@ class StudentHomeView extends ConsumerWidget {
 
   // --- Recent Activity Section ---
   Widget _buildRecentActivityList(
+    BuildContext context,
     List<PostModel> notices,
     List<PostModel> homeworks,
     List<QueryModel> studentQueries,
   ) {
     final List<Map<String, dynamic>> activities = [];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     for (final hw in homeworks) {
       activities.add({
@@ -448,7 +464,7 @@ class StudentHomeView extends ConsumerWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFEEF2F9),
+          color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEEF2F9),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Center(
@@ -467,6 +483,7 @@ class StudentHomeView extends ConsumerWidget {
         final idx = entry.key;
         final act = entry.value;
         return _buildActivityItem(
+          context,
           color: act["color"] as Color,
           title: act["title"] as String,
           time: act["time"] as String,
@@ -477,13 +494,15 @@ class StudentHomeView extends ConsumerWidget {
     );
   }
 
-  Widget _buildActivityItem({
+  Widget _buildActivityItem(
+    BuildContext context, {
     required Color color,
     required String title,
     required String time,
     bool isFirst = false,
     bool isLast = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -502,7 +521,7 @@ class StudentHomeView extends ConsumerWidget {
               Container(
                 width: 2,
                 height: 50,
-                color: Colors.grey.shade300,
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
               )
           ],
         ),
@@ -512,7 +531,7 @@ class StudentHomeView extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFEEF2F9),
+              color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEEF2F9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -520,10 +539,10 @@ class StudentHomeView extends ConsumerWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: isDark ? Colors.white70 : Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -546,15 +565,16 @@ class StudentHomeView extends ConsumerWidget {
   }
 
   // --- Upcoming Deadlines ---
-  Widget _buildUpcomingDeadlines(List<PostModel> homeworks) {
+  Widget _buildUpcomingDeadlines(BuildContext context, List<PostModel> homeworks) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (homeworks.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: isDark ? Colors.transparent : Colors.grey.shade200),
         ),
         child: const Center(
           child: Text(
@@ -571,7 +591,7 @@ class StudentHomeView extends ConsumerWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.orange, width: 1.2),
           ),
@@ -585,10 +605,10 @@ class StudentHomeView extends ConsumerWidget {
                   children: [
                     Text(
                       d.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
-                        color: Color(0xFF0F2C59),
+                        color: isDark ? Colors.white : const Color(0xFF0F2C59),
                       ),
                     ),
                     const SizedBox(height: 2),
