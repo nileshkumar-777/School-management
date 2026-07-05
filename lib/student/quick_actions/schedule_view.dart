@@ -1,80 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/providers.dart';
 
-class ScheduleView extends StatelessWidget {
+class ScheduleView extends ConsumerWidget {
   const ScheduleView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final Map<String, List<Map<String, dynamic>>> studentSchedule = {
-      "Monday": [
-        {
-          "time": "09:00 AM - 10:00 AM",
-          "subject": "Data Structures & Algorithms",
-          "instructor": "Dr. Sharma",
-          "room": "Room 302, Block B",
-          "type": "Theory Lecture",
-          "color": const Color(0xFFD3E3FD),
-        },
-        {
-          "time": "02:00 PM - 03:00 PM",
-          "subject": "Database Management Systems",
-          "instructor": "Dr. Sharma",
-          "room": "Room 304, Block B",
-          "type": "Theory Lecture",
-          "color": const Color(0xFFFCE9A4),
-        },
-      ],
-      "Tuesday": [
-        {
-          "time": "11:30 AM - 01:30 PM",
-          "subject": "Data Structures Lab",
-          "instructor": "Dr. Sharma",
-          "room": "Lab 1, Ground Floor",
-          "type": "Lab Practical",
-          "color": const Color(0xFFD3E3FD),
-        },
-      ],
-      "Wednesday": [
-        {
-          "time": "09:00 AM - 10:00 AM",
-          "subject": "Data Structures & Algorithms",
-          "instructor": "Dr. Sharma",
-          "room": "Room 302, Block B",
-          "type": "Theory Lecture",
-          "color": const Color(0xFFD3E3FD),
-        },
-        {
-          "time": "02:00 PM - 03:30 PM",
-          "subject": "Digital Electronics",
-          "instructor": "Prof. Verma",
-          "room": "Lab 4, Block A",
-          "type": "Lab Practical",
-          "color": const Color(0xFFE8F5E9),
-        },
-      ],
-      "Thursday": [
-        {
-          "time": "11:30 AM - 12:30 PM",
-          "subject": "Object Oriented Programming",
-          "instructor": "Prof. Roy",
-          "room": "Room 301, Block B",
-          "type": "Theory Lecture",
-          "color": const Color(0xFFE2EDFF),
-        },
-      ],
-      "Friday": [
-        {
-          "time": "02:00 PM - 03:00 PM",
-          "subject": "Digital Electronics",
-          "instructor": "Prof. Verma",
-          "room": "Room 205, Block A",
-          "type": "Theory Lecture",
-          "color": const Color(0xFFE8F5E9),
-        },
-      ]
-    };
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allSlots = ref.watch(masterScheduleProvider);
+    final classes = ref.watch(classesProvider);
+    final authState = ref.watch(authStateProvider);
+    final user = authState.value;
+
+    final rawName = user?.displayName ?? "Nilesh Kumar";
+    final studentName = rawName.split('|').first.trim();
+
+    // Determine the student's enrolled class, default to "CSE 1A"
+    final enrolledClassIds = classes
+        .where((c) => c.enrolledStudents.contains(studentName))
+        .map((c) => c.id)
+        .toList();
+    final studentClassId = enrolledClassIds.isNotEmpty ? enrolledClassIds.first : "CSE 1A";
 
     final days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+    // Group the slots matching this student's classId by day
+    final Map<String, List<ScheduleSlotModel>> studentSchedule = {};
+    for (final day in days) {
+      studentSchedule[day] = allSlots
+          .where((slot) => slot.day == day && slot.classId == studentClassId)
+          .toList();
+    }
 
     return DefaultTabController(
       length: days.length,
@@ -87,9 +43,9 @@ class ScheduleView extends StatelessWidget {
             icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2C59)),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: const Text(
-            "My Class Schedule",
-            style: TextStyle(
+          title: Text(
+            "My Schedule ($studentClassId)",
+            style: const TextStyle(
               color: Color(0xFF0F2C59),
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -142,7 +98,7 @@ class ScheduleView extends StatelessWidget {
                         width: 8,
                         height: 110,
                         decoration: BoxDecoration(
-                          color: slot["color"] as Color,
+                          color: slot.color,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(16),
                             bottomLeft: Radius.circular(16),
@@ -159,7 +115,7 @@ class ScheduleView extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    slot["time"] as String,
+                                    slot.time,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
@@ -173,7 +129,7 @@ class ScheduleView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      slot["type"] as String,
+                                      slot.type,
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -185,7 +141,7 @@ class ScheduleView extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                slot["subject"] as String,
+                                slot.subject,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -194,7 +150,7 @@ class ScheduleView extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "Instructor: ${slot["instructor"]}",
+                                "Instructor: ${slot.instructor}",
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
@@ -207,7 +163,7 @@ class ScheduleView extends StatelessWidget {
                                   const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
                                   const SizedBox(width: 4),
                                   Text(
-                                    slot["room"] as String,
+                                    slot.room,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey,
@@ -226,7 +182,170 @@ class ScheduleView extends StatelessWidget {
             );
           }).toList(),
         ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: const Color(0xFF0F2C59),
+          onPressed: () => _showAddSlotDialog(context, ref, studentClassId),
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
+    );
+  }
+
+  void _showAddSlotDialog(BuildContext context, WidgetRef ref, String studentClassId) {
+    final titleController = TextEditingController();
+    final roomController = TextEditingController();
+    String selectedDay = 'Monday';
+    String selectedInstructor = 'Dr. Sharma';
+    String selectedType = 'Theory Lecture';
+    TimeOfDay startTime = const TimeOfDay(hour: 9, minute: 0);
+    TimeOfDay endTime = const TimeOfDay(hour: 10, minute: 0);
+    Color selectedColor = const Color(0xFFD3E3FD);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text(
+                "Add Class Slot",
+                style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2C59)),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'Subject Name'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: roomController,
+                      decoration: const InputDecoration(labelText: 'Room Number'),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedDay,
+                      decoration: const InputDecoration(labelText: 'Day'),
+                      items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+                          .map((day) => DropdownMenuItem(value: day, child: Text(day)))
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedDay = val!),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedInstructor,
+                      decoration: const InputDecoration(labelText: 'Instructor'),
+                      items: ['Dr. Sharma', 'Prof. Verma', 'Prof. Roy', 'Dr. Ananya Sen', 'Dr. Rajesh Patel']
+                          .map((inst) => DropdownMenuItem(value: inst, child: Text(inst)))
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedInstructor = val!),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedType,
+                      decoration: const InputDecoration(labelText: 'Slot Type'),
+                      items: ['Theory Lecture', 'Lab Practical', 'Seminar', 'Guest Lecture']
+                          .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedType = val!),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              final picked = await showTimePicker(context: context, initialTime: startTime);
+                              if (picked != null) setState(() => startTime = picked);
+                            },
+                            child: Text(startTime.format(context)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              final picked = await showTimePicker(context: context, initialTime: endTime);
+                              if (picked != null) setState(() => endTime = picked);
+                            },
+                            child: Text(endTime.format(context)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Color(0xFFD3E3FD),
+                        const Color(0xFFFFD9D9),
+                        const Color(0xFFE2EDFF),
+                        const Color(0xFFFCE9A4),
+                        const Color(0xFFE8F5E9)
+                      ].map((color) {
+                        final isSelected = selectedColor == color;
+                        return GestureDetector(
+                          onTap: () => setState(() => selectedColor = color),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                              border: isSelected
+                                  ? Border.all(color: const Color(0xFF0F2C59), width: 2)
+                                  : null,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F2C59)),
+                  onPressed: () {
+                    if (titleController.text.trim().isEmpty || roomController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Please fill out all fields!")),
+                      );
+                      return;
+                    }
+
+                    final newSlot = ScheduleSlotModel(
+                      day: selectedDay,
+                      time: "${startTime.format(context)} - ${endTime.format(context)}",
+                      subject: titleController.text.trim(),
+                      classId: studentClassId,
+                      instructor: selectedInstructor,
+                      room: roomController.text.trim(),
+                      type: selectedType,
+                      color: selectedColor,
+                    );
+
+                    ref.read(masterScheduleProvider.notifier).addSlot(newSlot);
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Slot added successfully for $selectedDay!")),
+                    );
+                  },
+                  child: const Text("Add", style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -106,6 +106,98 @@ final List<PdfDocModel> _preloadedPdfs = [
   ),
 ];
 
+String getMockAiResponse(String query, {String docName = "", int pageNumber = 0, String pageTitle = "", String pageContent = ""}) {
+  final cleanQuery = query.trim();
+  final q = cleanQuery.toLowerCase();
+
+  // 1. Dynamic Counting Detection (e.g. "count till 10", "count to 10")
+  final countRegex = RegExp(r'\b(count|enumerate)\s+(?:to|till|up\s+to)?\s*(\d+)', caseSensitive: false);
+  final countMatch = countRegex.firstMatch(q);
+  if (countMatch != null) {
+    final numberStr = countMatch.group(2);
+    if (numberStr != null) {
+      final n = int.tryParse(numberStr);
+      if (n != null && n > 0) {
+        if (n > 100) {
+          return "That is a large number to count! Here are the first 20 numbers:\n"
+              "${List.generate(20, (i) => i + 1).join(', ')} ... and so on up to $n!";
+        } else {
+          return "Sure! Here is the count from 1 to $n:\n"
+              "${List.generate(n, (i) => i + 1).join(', ')}.";
+        }
+      }
+    }
+  }
+
+  // 2. Simple Math Solver (e.g. "what is 5 + 7")
+  final mathRegex = RegExp(r'(\d+)\s*([\+\-\*\/])\s*(\d+)');
+  final mathMatch = mathRegex.firstMatch(q);
+  if (mathMatch != null) {
+    final num1 = double.tryParse(mathMatch.group(1) ?? "");
+    final op = mathMatch.group(2);
+    final num2 = double.tryParse(mathMatch.group(3) ?? "");
+    if (num1 != null && num2 != null && op != null) {
+      double result = 0;
+      switch (op) {
+        case "+":
+          result = num1 + num2;
+          break;
+        case "-":
+          result = num1 - num2;
+          break;
+        case "*":
+          result = num1 * num2;
+          break;
+        case "/":
+          if (num2 != 0) {
+            result = num1 / num2;
+          } else {
+            return "Division by zero is undefined!";
+          }
+          break;
+      }
+      final resultStr = (result % 1 == 0) ? result.toInt().toString() : result.toStringAsFixed(2);
+      return "The result of ${num1.toInt()} $op ${num2.toInt()} is $resultStr.";
+    }
+  }
+
+  // 3. Document-Specific Logic (PDF Study mode)
+  if (docName.isNotEmpty) {
+    if (docName == "DBMS_Lecture_Notes.pdf" && pageNumber == 3) {
+      return "Great question regarding indexing on Page 3! B+ Trees store data pointers only at the leaf level, and keep all leaves linked sequentially. This means range searches (e.g. finding values between 10 and 50) only need to find the start node and then scan the list, avoiding vertical tree traversals.";
+    } else if (docName == "Data_Structures_Guide.pdf" && pageNumber == 3) {
+      return "About BSTs on Page 3: If you insert elements in sorted order (e.g., 1, 2, 3, 4), the BST behaves like a linked list, bringing search time complexity down to O(n). To maintain O(log n) efficiency, self-balancing trees like AVL or Red-Black Trees are used.";
+    } else if (docName == "OS_Concepts.pdf" && pageNumber == 3) {
+      return "Banker's Algorithm on Page 3 checks resource requests dynamically. It uses vectors for Available, Max, Allocation, and Need resources. It only grants a resource request if a safe path exists where all processes can run to completion.";
+    } else {
+      return "Regarding Page $pageNumber ('$pageTitle'):\n\nBased on the content: '$pageContent',\n\nHere is an explanation: This topic forms a core foundation in your computer science curriculum. Feel free to ask for specific code exercises or diagrams related to it!";
+    }
+  }
+
+  // 4. Conversational Keywords (General Doubts)
+  if (q.contains("hello") || q.contains("hi") || q == "hey") {
+    return "Hello! I am your AI study companion. Ask me any doubts about concepts like B-Trees, CPU scheduling, virtual memory, or algorithms! You can also ask me to count to a number (e.g., 'count till 10') or solve simple math.";
+  } else if (q.contains("what is ai") || q == "ai" || q.contains("artificial intelligence")) {
+    return "Artificial Intelligence (AI) refers to the simulation of human intelligence in machines that are programmed to think and learn. In education, AI can help summarize study guides and explain complex concepts.";
+  } else if (q.contains("b-tree") || q.contains("b+ tree")) {
+    return "A B-Tree is a self-balancing search tree data structure that allows logarithmic searches. B+ Trees are a variation where keys are only stored in the leaves, which are sequentially linked—making range queries very efficient for databases.";
+  } else if (q.contains("deadlock")) {
+    return "A deadlock is a situation where a set of processes are blocked because each process holds a resource and waits for another resource held by some other process. The four conditions are: Mutual Exclusion, Hold & Wait, No Preemption, and Circular Wait.";
+  } else if (q.contains("joke")) {
+    return "Why do programmers wear glasses? Because they can't C#! 😂";
+  } else if (q.contains("help") || q.contains("what can you do")) {
+    return "I am your AI study companion! I can:\n"
+        "• Count up to any number (try 'count till 10')\n"
+        "• Perform basic math (try 'what is 25 * 4')\n"
+        "• Explain topics like B-Trees, CPU scheduling, virtual memory, or deadlocks\n"
+        "• Answer custom questions and study preloaded academic PDFs page-by-page!";
+  } else if (q.contains("code") || q.contains("program")) {
+    return "Here is a simple Hello World program in Dart:\n\n```dart\nvoid main() {\n  print('Hello, World!');\n}\n```\nLet me know if you need code for a specific data structure or algorithm!";
+  }
+
+  return "Interesting query! I am parsing the database and syllabus documents to formulate a detailed response. Let me know if you want specific examples, code, or a structured count.";
+}
+
 class AiView extends StatefulWidget {
   const AiView({super.key});
 
@@ -134,22 +226,10 @@ class _AiViewState extends State<AiView> {
       _textController.clear();
     });
 
-    // Mock response generation for normal doubts
+    // Mock response generation using global helper
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) {
-        String replyText = "";
-        final q = userQuery.toLowerCase();
-        if (q.contains("hello") || q.contains("hi") || q == "hey") {
-          replyText = "Hello! I am your AI study companion. Ask me any doubts about concepts like B-Trees, CPU scheduling, virtual memory, or algorithms!";
-        } else if (q.contains("what is ai") || q == "ai" || q.contains("artificial intelligence")) {
-          replyText = "Artificial Intelligence (AI) refers to the simulation of human intelligence in machines that are programmed to think and learn. In education, AI can help summarize study guides and explain complex concepts.";
-        } else if (q.contains("b-tree") || q.contains("b+ tree")) {
-          replyText = "A B-Tree is a self-balancing search tree data structure that allows logarithmic searches. B+ Trees are a variation where keys are only stored in the leaves, which are sequentially linked—making range queries very efficient for databases.";
-        } else if (q.contains("deadlock")) {
-          replyText = "A deadlock is a situation where a set of processes are blocked because each process holds a resource and waits for another resource held by some other process. The four conditions are: Mutual Exclusion, Hold & Wait, No Preemption, and Circular Wait.";
-        } else {
-          replyText = "Interesting query! I am parsing the database and syllabus documents to formulate a detailed response. Let me know if you want specific examples or code.";
-        }
+        final replyText = getMockAiResponse(userQuery);
 
         setState(() {
           _messages.add({
@@ -580,16 +660,13 @@ class _PdfStudyScreenState extends State<PdfStudyScreen> {
 
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) {
-        String replyText = "";
-        if (docName == "DBMS_Lecture_Notes.pdf" && pageNumber == 3) {
-          replyText = "Great question regarding indexing on Page 3! B+ Trees store data pointers only at the leaf level, and keep all leaves linked sequentially. This means range searches (e.g. finding values between 10 and 50) only need to find the start node and then scan the list, avoiding vertical tree traversals.";
-        } else if (docName == "Data_Structures_Guide.pdf" && pageNumber == 3) {
-          replyText = "About BSTs on Page 3: If you insert elements in sorted order (e.g., 1, 2, 3, 4), the BST behaves like a linked list, bringing search time complexity down to O(n). To maintain O(log n) efficiency, self-balancing trees like AVL or Red-Black Trees are used.";
-        } else if (docName == "OS_Concepts.pdf" && pageNumber == 3) {
-          replyText = "Banker's Algorithm on Page 3 checks resource requests dynamically. It uses vectors for Available, Max, Allocation, and Need resources. It only grants a resource request if a safe path exists where all processes can run to completion.";
-        } else {
-          replyText = "Regarding Page $pageNumber ('$pageTitle'):\n\nBased on the content: '$pageContent',\n\nHere is an explanation: This topic forms a core foundation in your computer science curriculum. Feel free to ask for specific code exercises or diagrams related to it!";
-        }
+        final replyText = getMockAiResponse(
+          userQuery,
+          docName: docName,
+          pageNumber: pageNumber,
+          pageTitle: pageTitle,
+          pageContent: pageContent,
+        );
 
         setState(() {
           _isAiThinking = false;

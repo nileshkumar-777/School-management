@@ -159,6 +159,21 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                                         color: Colors.grey,
                                       ),
                                     ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                                      onPressed: () {
+                                        ref.read(postsProvider.notifier).deletePost(notice.id);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Notice deleted successfully!"),
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      },
+                                      constraints: const BoxConstraints(),
+                                      padding: EdgeInsets.zero,
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
@@ -194,6 +209,19 @@ class _NoticeViewState extends ConsumerState<NoticeView> {
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
+                                    if (notice.deleteAt != null) ...[
+                                      const SizedBox(width: 16),
+                                      const Icon(Icons.auto_delete_outlined, size: 14, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        "Delete At: ${notice.deleteAt!.day}/${notice.deleteAt!.month}/${notice.deleteAt!.year} ${notice.deleteAt!.hour.toString().padLeft(2, '0')}:${notice.deleteAt!.minute.toString().padLeft(2, '0')}",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ],

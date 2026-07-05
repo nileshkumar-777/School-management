@@ -45,7 +45,8 @@ class _AlertsViewState extends ConsumerState<AlertsView> {
     final announcements = posts.where((p) {
       final isAnnouncement = p.type == "Notice" || p.type == "Alert";
       final isTargeted = enrolledClassIds.contains(p.targetClass) || p.targetClass == "All";
-      return isAnnouncement && isTargeted;
+      final isNotExpired = p.deleteAt == null || DateTime.now().isBefore(p.deleteAt!);
+      return isAnnouncement && isTargeted && isNotExpired;
     }).toList();
 
     // Apply filter chip choice

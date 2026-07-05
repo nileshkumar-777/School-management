@@ -64,6 +64,7 @@ class PostModel {
   final String category; // e.g. "Urgent", "Meeting", "Event", "Academic"
   final Color color;
   final String? attachment;
+  final DateTime? deleteAt;
 
   PostModel({
     required this.id,
@@ -75,6 +76,7 @@ class PostModel {
     required this.category,
     required this.color,
     this.attachment,
+    this.deleteAt,
   });
 }
 
@@ -266,11 +268,65 @@ final classesProvider = NotifierProvider<ClassesNotifier, List<ClassModel>>(
 );
 
 class PostsNotifier extends Notifier<List<PostModel>> {
+  File get _file => File('${Directory.systemTemp.path}/posts.json');
+
   @override
-  List<PostModel> build() => [];
+  List<PostModel> build() {
+    try {
+      if (_file.existsSync()) {
+        final content = _file.readAsStringSync();
+        final List<dynamic> jsonList = jsonDecode(content);
+        return jsonList.map((item) {
+          return PostModel(
+            id: item['id'] as String,
+            type: item['type'] as String,
+            title: item['title'] as String,
+            description: item['description'] as String,
+            targetClass: item['targetClass'] as String,
+            date: DateTime.parse(item['date'] as String),
+            category: item['category'] as String,
+            color: Color(item['color'] as int),
+            attachment: item['attachment'] as String?,
+            deleteAt: item['deleteAt'] != null
+                ? DateTime.parse(item['deleteAt'] as String)
+                : null,
+          );
+        }).toList();
+      }
+    } catch (e) {
+      debugPrint("Error loading posts: $e");
+    }
+    return [];
+  }
 
   void addPost(PostModel p) {
     state = [...state, p];
+    _save();
+  }
+
+  void deletePost(String id) {
+    state = state.where((p) => p.id != id).toList();
+    _save();
+  }
+
+  void _save() {
+    try {
+      final jsonList = state.map((p) => {
+        'id': p.id,
+        'type': p.type,
+        'title': p.title,
+        'description': p.description,
+        'targetClass': p.targetClass,
+        'date': p.date.toIso8601String(),
+        'category': p.category,
+        'color': p.color.toARGB32(),
+        'attachment': p.attachment,
+        'deleteAt': p.deleteAt?.toIso8601String(),
+      }).toList();
+      _file.writeAsStringSync(jsonEncode(jsonList));
+    } catch (e) {
+      debugPrint("Error saving posts: $e");
+    }
   }
 }
 
@@ -415,6 +471,16 @@ class RegisteredStudentsNotifier extends Notifier<List<StudentRegistryModel>> {
       StudentRegistryModel(name: "Neha Patel", email: "neha@student.com"),
       StudentRegistryModel(name: "Kabir Mehta", email: "kabir@student.com"),
       StudentRegistryModel(name: "Ishita Joshi", email: "ishita@student.com"),
+      StudentRegistryModel(name: "Aditya Verma", email: "aditya@student.com"),
+      StudentRegistryModel(name: "Siddharth Rao", email: "siddharth@student.com"),
+      StudentRegistryModel(name: "Tanvi Kapoor", email: "tanvi@student.com"),
+      StudentRegistryModel(name: "Karan Johar", email: "karan@student.com"),
+      StudentRegistryModel(name: "Shruti Hegde", email: "shruti@student.com"),
+      StudentRegistryModel(name: "Devendra Yadav", email: "devendra@student.com"),
+      StudentRegistryModel(name: "Pooja Banerjee", email: "pooja@student.com"),
+      StudentRegistryModel(name: "Rohan Mehra", email: "rohan@student.com"),
+      StudentRegistryModel(name: "Anjali Desai", email: "anjali@student.com"),
+      StudentRegistryModel(name: "Varun Dhawan", email: "varun@student.com"),
     ];
 
     try {
@@ -652,4 +718,340 @@ class HomeworkSubmissionsNotifier extends Notifier<List<HomeworkSubmissionModel>
 
 final homeworkSubmissionsProvider = NotifierProvider<HomeworkSubmissionsNotifier, List<HomeworkSubmissionModel>>(
   HomeworkSubmissionsNotifier.new,
+);
+
+class ScheduleSlotModel {
+  final String day;
+  final String time;
+  final String subject;
+  final String classId;
+  final String instructor;
+  final String room;
+  final String type;
+  final Color color;
+
+  ScheduleSlotModel({
+    required this.day,
+    required this.time,
+    required this.subject,
+    required this.classId,
+    required this.instructor,
+    required this.room,
+    required this.type,
+    required this.color,
+  });
+}
+
+class MasterScheduleNotifier extends Notifier<List<ScheduleSlotModel>> {
+  File get _file => File('${Directory.systemTemp.path}/schedule.json');
+
+  @override
+  List<ScheduleSlotModel> build() {
+    final defaultSlots = [
+      // Monday
+      ScheduleSlotModel(
+        day: "Monday",
+        time: "09:00 AM - 10:00 AM",
+        subject: "Data Structures & Algorithms",
+        classId: "CSE 1A",
+        instructor: "Dr. Sharma",
+        room: "Room 302, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFD3E3FD),
+      ),
+      ScheduleSlotModel(
+        day: "Monday",
+        time: "10:15 AM - 11:15 AM",
+        subject: "Operating Systems",
+        classId: "CSE 2A",
+        instructor: "Dr. Ananya Sen",
+        room: "Room 401, Block C",
+        type: "Theory Lecture",
+        color: const Color(0xFFFFD9D9),
+      ),
+      ScheduleSlotModel(
+        day: "Monday",
+        time: "11:30 AM - 12:30 PM",
+        subject: "Object Oriented Programming",
+        classId: "CSE 1B",
+        instructor: "Prof. Roy",
+        room: "Room 301, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFE2EDFF),
+      ),
+      ScheduleSlotModel(
+        day: "Monday",
+        time: "02:00 PM - 03:00 PM",
+        subject: "Database Management Systems",
+        classId: "CSE 1A",
+        instructor: "Dr. Sharma",
+        room: "Room 304, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+      ScheduleSlotModel(
+        day: "Monday",
+        time: "03:15 PM - 04:15 PM",
+        subject: "Digital Electronics",
+        classId: "ECE 1A",
+        instructor: "Prof. Verma",
+        room: "Room 205, Block A",
+        type: "Theory Lecture",
+        color: const Color(0xFFE8F5E9),
+      ),
+
+      // Tuesday
+      ScheduleSlotModel(
+        day: "Tuesday",
+        time: "09:00 AM - 10:00 AM",
+        subject: "Discrete Mathematics",
+        classId: "CSE 1B",
+        instructor: "Dr. Rajesh Patel",
+        room: "Room 303, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+      ScheduleSlotModel(
+        day: "Tuesday",
+        time: "10:00 AM - 11:00 AM",
+        subject: "Operating Systems",
+        classId: "CSE 2A",
+        instructor: "Dr. Ananya Sen",
+        room: "Room 401, Block C",
+        type: "Theory Lecture",
+        color: const Color(0xFFFFD9D9),
+      ),
+      ScheduleSlotModel(
+        day: "Tuesday",
+        time: "11:30 AM - 01:30 PM",
+        subject: "Data Structures Lab",
+        classId: "CSE 1A",
+        instructor: "Dr. Sharma",
+        room: "Lab 1, Ground Floor",
+        type: "Lab Practical",
+        color: const Color(0xFFD3E3FD),
+      ),
+      ScheduleSlotModel(
+        day: "Tuesday",
+        time: "02:00 PM - 04:00 PM",
+        subject: "OOP Lab",
+        classId: "CSE 1B",
+        instructor: "Prof. Roy",
+        room: "Lab 3, Ground Floor",
+        type: "Lab Practical",
+        color: const Color(0xFFE2EDFF),
+      ),
+
+      // Wednesday
+      ScheduleSlotModel(
+        day: "Wednesday",
+        time: "09:00 AM - 10:00 AM",
+        subject: "Data Structures & Algorithms",
+        classId: "CSE 1A",
+        instructor: "Dr. Sharma",
+        room: "Room 302, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFD3E3FD),
+      ),
+      ScheduleSlotModel(
+        day: "Wednesday",
+        time: "10:15 AM - 11:15 AM",
+        subject: "Digital Electronics",
+        classId: "ECE 1A",
+        instructor: "Prof. Verma",
+        room: "Room 205, Block A",
+        type: "Theory Lecture",
+        color: const Color(0xFFE8F5E9),
+      ),
+      ScheduleSlotModel(
+        day: "Wednesday",
+        time: "11:30 AM - 12:30 PM",
+        subject: "Database Management Systems",
+        classId: "CSE 1A",
+        instructor: "Dr. Sharma",
+        room: "Room 304, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+      ScheduleSlotModel(
+        day: "Wednesday",
+        time: "02:00 PM - 03:30 PM",
+        subject: "Digital Electronics Lab",
+        classId: "ECE 1A",
+        instructor: "Prof. Verma",
+        room: "Lab 4, Block A",
+        type: "Lab Practical",
+        color: const Color(0xFFE8F5E9),
+      ),
+      ScheduleSlotModel(
+        day: "Wednesday",
+        time: "03:45 PM - 04:45 PM",
+        subject: "Human Values",
+        classId: "CSE 2A",
+        instructor: "Dr. Rajesh Patel",
+        room: "Room 401, Block C",
+        type: "Theory Lecture",
+        color: const Color(0xFFFFE0B2),
+      ),
+
+      // Thursday
+      ScheduleSlotModel(
+        day: "Thursday",
+        time: "09:00 AM - 10:00 AM",
+        subject: "Operating Systems",
+        classId: "CSE 2A",
+        instructor: "Dr. Ananya Sen",
+        room: "Room 401, Block C",
+        type: "Theory Lecture",
+        color: const Color(0xFFFFD9D9),
+      ),
+      ScheduleSlotModel(
+        day: "Thursday",
+        time: "10:15 AM - 11:15 AM",
+        subject: "Discrete Mathematics",
+        classId: "CSE 1B",
+        instructor: "Dr. Rajesh Patel",
+        room: "Room 303, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+      ScheduleSlotModel(
+        day: "Thursday",
+        time: "11:30 AM - 12:30 PM",
+        subject: "Object Oriented Programming",
+        classId: "CSE 1B",
+        instructor: "Prof. Roy",
+        room: "Room 301, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFE2EDFF),
+      ),
+      ScheduleSlotModel(
+        day: "Thursday",
+        time: "02:00 PM - 03:00 PM",
+        subject: "Discrete Mathematics",
+        classId: "CSE 1A",
+        instructor: "Dr. Rajesh Patel",
+        room: "Room 302, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+      ScheduleSlotModel(
+        day: "Thursday",
+        time: "03:00 PM - 04:00 PM",
+        subject: "Operating Systems Lab",
+        classId: "CSE 2A",
+        instructor: "Dr. Ananya Sen",
+        room: "Lab 2, Block C",
+        type: "Lab Practical",
+        color: const Color(0xFFFFD9D9),
+      ),
+
+      // Friday
+      ScheduleSlotModel(
+        day: "Friday",
+        time: "09:00 AM - 10:00 AM",
+        subject: "Object Oriented Programming",
+        classId: "CSE 1A",
+        instructor: "Prof. Roy",
+        room: "Room 302, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFE2EDFF),
+      ),
+      ScheduleSlotModel(
+        day: "Friday",
+        time: "10:00 AM - 11:00 AM",
+        subject: "Operating Systems",
+        classId: "CSE 2A",
+        instructor: "Dr. Ananya Sen",
+        room: "Room 401, Block C",
+        type: "Theory Lecture",
+        color: const Color(0xFFFFD9D9),
+      ),
+      ScheduleSlotModel(
+        day: "Friday",
+        time: "11:30 AM - 12:30 PM",
+        subject: "Discrete Mathematics",
+        classId: "CSE 1A",
+        instructor: "Dr. Rajesh Patel",
+        room: "Room 302, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+      ScheduleSlotModel(
+        day: "Friday",
+        time: "02:00 PM - 03:00 PM",
+        subject: "Digital Electronics",
+        classId: "ECE 1A",
+        instructor: "Prof. Verma",
+        room: "Room 205, Block A",
+        type: "Theory Lecture",
+        color: const Color(0xFFE8F5E9),
+      ),
+      ScheduleSlotModel(
+        day: "Friday",
+        time: "03:15 PM - 04:15 PM",
+        subject: "Database Management Systems",
+        classId: "CSE 1B",
+        instructor: "Dr. Sharma",
+        room: "Room 303, Block B",
+        type: "Theory Lecture",
+        color: const Color(0xFFFCE9A4),
+      ),
+    ];
+
+    try {
+      if (_file.existsSync()) {
+        final content = _file.readAsStringSync();
+        final List<dynamic> jsonList = jsonDecode(content);
+        return jsonList.map((item) {
+          return ScheduleSlotModel(
+            day: item['day'] as String,
+            time: item['time'] as String,
+            subject: item['subject'] as String,
+            classId: item['classId'] as String,
+            instructor: item['instructor'] as String,
+            room: item['room'] as String,
+            type: item['type'] as String,
+            color: Color(item['color'] as int),
+          );
+        }).toList();
+      }
+    } catch (e) {
+      debugPrint("Error loading schedule: $e");
+    }
+
+    return defaultSlots;
+  }
+
+  void addSlot(ScheduleSlotModel slot) {
+    state = [...state, slot];
+    _save();
+  }
+
+  void removeSlot(String day, String time, String classId) {
+    state = state.where((s) => !(s.day == day && s.time == time && s.classId == classId)).toList();
+    _save();
+  }
+
+  void _save() {
+    try {
+      final jsonList = state.map((s) => {
+        'day': s.day,
+        'time': s.time,
+        'subject': s.subject,
+        'classId': s.classId,
+        'instructor': s.instructor,
+        'room': s.room,
+        'type': s.type,
+        'color': s.color.toARGB32(),
+      }).toList();
+      _file.writeAsStringSync(jsonEncode(jsonList));
+    } catch (e) {
+      debugPrint("Error saving schedule: $e");
+    }
+  }
+}
+
+final masterScheduleProvider = NotifierProvider<MasterScheduleNotifier, List<ScheduleSlotModel>>(
+  MasterScheduleNotifier.new,
 );

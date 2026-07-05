@@ -15,12 +15,64 @@ class _CreateViewState extends ConsumerState<CreateView> {
   String _selectedType = 'Homework';
   String _selectedClass = '';
   String? _attachedFileName;
+  DateTime? _selectedDeleteDateTime;
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDeleteDateTime(BuildContext context) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF0F2C59),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF0F2C59),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (date == null) return;
+
+    if (!context.mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 12, minute: 0),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF0F2C59),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF0F2C59),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (time == null) return;
+
+    setState(() {
+      _selectedDeleteDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+    });
   }
 
   @override
@@ -290,6 +342,59 @@ class _CreateViewState extends ConsumerState<CreateView> {
               ),
             ],
 
+            if (_selectedType == 'Notice' || _selectedType == 'Alert') ...[
+              const SizedBox(height: 24),
+              const Text(
+                "DELETE DATE & TIME (OPTIONAL)",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
+                  letterSpacing: 1.1,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEEF2F9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _selectedDeleteDateTime == null
+                            ? "Stay visible forever (No delete date)"
+                            : "Delete At: ${_selectedDeleteDateTime!.day}/${_selectedDeleteDateTime!.month}/${_selectedDeleteDateTime!.year} ${_selectedDeleteDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDeleteDateTime!.minute.toString().padLeft(2, '0')}",
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.bold,
+                          color: _selectedDeleteDateTime == null
+                              ? Colors.grey.shade600
+                              : const Color(0xFF0F2C59),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.calendar_month, color: Color(0xFF0F2C59)),
+                    onPressed: () => _pickDeleteDateTime(context),
+                  ),
+                  if (_selectedDeleteDateTime != null)
+                    IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      onPressed: () {
+                        setState(() {
+                          _selectedDeleteDateTime = null;
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ],
+
             const SizedBox(height: 32),
 
             // Publish button
@@ -330,6 +435,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                     category: postCategory,
                     color: postColor,
                     attachment: _selectedType == 'Homework' ? _attachedFileName : null,
+                    deleteAt: (_selectedType == 'Notice' || _selectedType == 'Alert') ? _selectedDeleteDateTime : null,
                   );
 
                   ref.read(postsProvider.notifier).addPost(newPost);
@@ -345,6 +451,7 @@ class _CreateViewState extends ConsumerState<CreateView> {
                   _descriptionController.clear();
                   setState(() {
                     _attachedFileName = null;
+                    _selectedDeleteDateTime = null;
                   });
                 },
                 style: ElevatedButton.styleFrom(
